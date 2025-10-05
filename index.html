@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistema de Logística v14.2 [Correção Múltiplos E-mails]</title>
+    <title>Sistema de Logística v15 [E-mails Independentes]</title>
     <style>
         /* --- ESTILOS GERAIS (CSS) - TEMA ESCURO --- */
         @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
@@ -129,14 +129,15 @@
         
         <hr style="border-color: var(--border-color); margin: 25px 0;">
 
-        <div class="form-group full-width">
-            <label for="emailDestinatario">Destinatário(s) (separar por vírgula):</label>
-            <input type="text" id="emailDestinatario" value="ana@empresa.com" placeholder="email@exemplo.com, outro@exemplo.com">
-        </div>
-
-        <div class="form-group full-width">
-            <label for="emailCopia">CC (em cópia - separar por vírgula):</label>
-            <input type="text" id="emailCopia" placeholder="copia@exemplo.com">
+        <div id="generalEmailFields">
+            <div class="form-group full-width">
+                <label for="emailDestinatario">Destinatário(s) (separar por vírgula):</label>
+                <input type="text" id="emailDestinatario" value="ana@empresa.com" placeholder="email@exemplo.com, outro@exemplo.com">
+            </div>
+            <div class="form-group full-width">
+                <label for="emailCopia">CC (em cópia - separar por vírgula):</label>
+                <input type="text" id="emailCopia" placeholder="copia@exemplo.com">
+            </div>
         </div>
 
         <div id="formCredito">
@@ -156,6 +157,16 @@
         </div>
 
         <div id="formPortaria" style="display: none;">
+            <div class="form-group full-width">
+                <label for="emailDestinatarioPortaria">Destinatário da Portaria (separar por vírgula):</label>
+                <input type="text" id="emailDestinatarioPortaria" value="portaria@empresa.com" placeholder="email.portaria@exemplo.com">
+            </div>
+            <div class="form-group full-width">
+                <label for="emailCopiaPortaria">CC Portaria (em cópia - separar por vírgula):</label>
+                <input type="text" id="emailCopiaPortaria" placeholder="copia.portaria@exemplo.com">
+            </div>
+            <hr style="border-color: var(--border-color); margin: 15px 0;">
+
              <div class="form-group full-width">
                 <label for="motoristaPortaria">Selecione o Motorista:</label>
                 <select id="motoristaPortaria"></select>
@@ -196,13 +207,18 @@
     </div>
 
     <script>
-        // --- LÓGICA DA APLICAÇÃO (JAVASCRIPT) ---
         const motoristas = [
             { nome: "ABRAAO MESSIAS POLICANTI", codigo: "577", placa: "AGX3I88" }, { nome: "AGENOR DIAS", codigo: "741", placa: "MBF8J91" }, { nome: "ALAIN BASSI DO NASCIMENTO", codigo: "781", placa: "EPQ7554" }, { nome: "ALEX RIBEIRO", codigo: "123", placa: "DHW2J53" }, { nome: "ALEX SANDRO OLIVEIRA DE ALMIEIDA", codigo: "925", placa: "ATB2F08" }, { nome: "ALEXSANDRO REIS", codigo: "423", placa: "ETF0D64" }, { nome: "ALEXSANDRO SILVA DA COSTA", codigo: "481", placa: "LOM8J38" }, { nome: "ALICIO BATISTA PAIVA", codigo: "754", placa: "ASG9F40" }, { nome: "ALISSON LUIZ LOUCAO", codigo: "403", placa: "AQJ9H16" }, { nome: "ANDRO ALIRIO FERREIRA", codigo: "441", placa: "AOC3G53" }, { nome: "ANISIO DA SILVA", codigo: "682", placa: "EJE1A71" }, { nome: "ANTONIO MARCOS NUNES DE OLIVEIRA", codigo: "901", placa: "ARY5F11" }, { nome: "APARECIDO BARBOSA DE LIMA", codigo: "408", placa: "EZU3J87" }, { nome: "BRUNO GONCALVES RIBEIRO GUIMARAES", codigo: "101", placa: "DBH7D23" }, { nome: "CARLOS ALBERTO DE OLIVEIRA", codigo: "495", placa: "BCC4F88" }, { nome: "CARLOS EDUARDO GOMES", codigo: "478", placa: "AYG9C90" }, { nome: "CARLOS ZOBERTO ECHAMENDI", codigo: "554", placa: "LPP0J82" }, { nome: "CICERO RODRIGUES", codigo: "831", placa: "ASU6C30" }, { nome: "CLAUDIMAR RODRIGUES", codigo: "916", placa: "BAH5J78" }, { nome: "CLAUDINEI APARECIDO BRISDA", codigo: "820", placa: "OIF4B89" }, { nome: "CLAUDINEI APARECIDO MENDES", codigo: "185", placa: "BBK2D30" }, { nome: "CLAUDINEI DE SOUZA", codigo: "829", placa: "DQR8B21" }, { nome: "CLOVIS AUGUSTO GUIMARAES", codigo: "321", placa: "AFJ7812" }, { nome: "CRISTIANO DE SOUZA LIMA", codigo: "631", placa: "MFX0C52" }, { nome: "CRISTIANO DOLEMBA", codigo: "398", placa: "FKT2F73" }, { nome: "DANILO JUNIOR ALACOQUE", codigo: "814", placa: "DJC2D45" }, { nome: "DANNILO JUNIOR DA COSTA", codigo: "469", placa: "GRA3D21" }, { nome: "DAVID BRUNO DOS SANTOS DIAS", codigo: "661", placa: "GUU9904" }, { nome: "DENIELTON BUENO DA SILVA", codigo: "143", placa: "BTO6D76" }, { nome: "EDERSON DA SILVA", codigo: "91", placa: "AWA3D28" }, { nome: "EDIVALDO FABRICIO DE LIMA", codigo: "860", placa: "AJI4656" }, { nome: "EDSON MESSIAS", codigo: "800", placa: "CPR0J63" }, { nome: "EDUARDO VINICIUS BALISIO", codigo: "463", placa: "LSM4H90" }, { nome: "ELI BERNARDINO ALMEIDA", codigo: "182", placa: "SEQ0J71" }, { nome: "ERLI BERNARDINO", codigo: "182", placa: "SEO0J71" }, { nome: "EVERTON LUIS MOURA", codigo: "297", placa: "AOZ3J39" }, { nome: "EVERTON ROBSON DA SILVA", codigo: "464", placa: "ARV7J35" }, { nome: "EVERTON RODRIGO TUPAN", codigo: "433", placa: "FUI0J65" }, { nome: "FABIO DA SILVA OLIVIRA", codigo: "381", placa: "PVQ3A82" }, { nome: "FABIO DOS SANTOS", codigo: "121", placa: "BBK2D41" }, { nome: "FELIPE BIANCHI", codigo: "817", placa: "BDC7C29" }, { nome: "FERNANDO MESSIAS POLICANTI", codigo: "900", placa: "ARY5F11" }, { nome: "FERNANDO MESSIAS POLICANTI NETO", codigo: "131", placa: "EJW8E42" }, { nome: "FLAVIO ANTONIO DE CARVALHO", codigo: "855", placa: "ARB5176" }, { nome: "FLAVIO CESAR SHIGEAKI FURU", codigo: "813", placa: "BCR1I38" }, { nome: "GENIEL DE SOUSA POLICANTI AS", codigo: "816", placa: "AOQ0A48" }, { nome: "GENIVAL LINO DE ALMEIDA", codigo: "909", placa: "HMC5H95" }, { nome: "GERALDO TEODORO", codigo: "418", placa: "ATD3G45" }, { nome: "GILMAR MENDES DE OLIVEIRA", codigo: "244", placa: "AYG1B15" }, { nome: "HELIO DOS SANTOS ABREU", codigo: "431", placa: "EKH0I50" }, { nome: "HENRIQUE DA SILVA STAVANATO", codigo: "440", placa: "MLV2C15" }, { nome: "HENRIQUE DA SILVEIRA TAVARES", codigo: "140", placa: "MLV5G12" }, { nome: "IGOR DA SILVA DE JESUS", codigo: "421", placa: "AJR3E53" }, { nome: "IRINEU CARDOSO DE MOURA", codigo: "722", placa: "AHK0011" }, { nome: "IVAN BORTOLOSSI DE SOUZA", codigo: "395", placa: "TAY2F85" }, { nome: "JAIR DE ASSIS DE JESUS", codigo: "325", placa: "AQQ5I31" }, { nome: "JECIEL TEODORO DA SILVA", codigo: "840", placa: "ABY2B31" }, { nome: "JEFERSON DOS SANTOS COSTA", codigo: "500", placa: "ARY5F11" }, { nome: "JESAEL CARNEIRO DE MELO", codigo: "150", placa: "ATA0C31" }, { nome: "JOAO BATISTA URONANI", codigo: "627", placa: "SEU8J28" }, { nome: "JOAO MANOEL DE SOUZA SEVERO", codigo: "715", placa: "BEB7H99" }, { nome: "JOAO PAULO MACHADO BARBOSA", codigo: "818", placa: "FNZ2J53" }, { nome: "JOAO VITOR TREDER CHACON", codigo: "821", placa: "MDV8J42" }, { nome: "JORGE ARMANDO RIVERA LOPES", codigo: "900", placa: "FWG7H74" }, { nome: "JOSE ANGELO DOS SANTOS", codigo: "944", placa: "AQB0H89" }, { nome: "JOSE BENEDITO DE OLIVEIRA", codigo: "908", placa: "IYL0H15" }, { nome: "JOSE CARLOS DE OLIVEIRA", codigo: "130", placa: "AQQ8B23" }, { nome: "JOSEMAR DO NASCIMENTO", codigo: "112", placa: "EWJ0B95" }, { nome: "JOSIAS BATISTA ALMEIDA", codigo: "406", placa: "BDN3D74" }, { nome: "JULIANO NUNES KISTENMACHER", codigo: "803", placa: "APF0E63" }, { nome: "LEONARDO OLIVEIRA RESENDE", codigo: "428", placa: "BDN0A67" }, { nome: "MAICON HENRIQUE DIAS", codigo: "806", placa: "AWV9F72" }, { nome: "MAIKON MICHEL RODRIGUES", codigo: "893", placa: "AQC4D55" }, { nome: "MARCELO APARECIDO GERALDO", codigo: "807", placa: "AKW2J76" }, { nome: "MARCELO PETENASSI ZARAMELA", codigo: "400", placa: "ACC1A28" }, { nome: "MARCELO PEREIRA ALVES", codigo: "181", placa: "APN0081" }, { nome: "MARCIO FABIO GARCIA", codigo: "437", placa: "B544D68" }, { nome: "MARCO FABIO GARCIA", codigo: "477", placa: "BSQ5D65" }, { nome: "MARCOS ALVES DA SILVA", codigo: "394", placa: "BMB8J88" }, { nome: "MARCOS APARECIDO IRMER", codigo: "404", placa: "AOF0I81" }, { nome: "MARCOS ROBERTO DE OLIVEIRA", codigo: "737", placa: "SEL8D06" }, { nome: "MARCOS ROBERTO DIAS", codigo: "802", placa: "HSD4543" }, { nome: "MATHEUS GABRIEL DE SOUZA MEIRA", codigo: "376", placa: "ARU8B29" }, { nome: "MATHEUS HENRIQUE DE SOUZA", codigo: "526", placa: "ATG1J95" }, { nome: "MAURO DA SILVA", codigo: "241", placa: "AWZ3A35" }, { nome: "NEYMAR KONOPKA", codigo: "970", placa: "AXY7G76" }, { nome: "ODAIR JOSE DE CARVALHO", codigo: "885", placa: "DRR2C83" }, { nome: "ODILO CARLOS MOREIRA DOS SANTOS", codigo: "521", placa: "AYD7C78" }, { nome: "OLIVIO PIRES GONCALVES", codigo: "854", placa: "JJZ4G84" }, { nome: "OSWALDO SADAHALU KOBATA", codigo: "736", placa: "QDN7G63" }, { nome: "PAULO ROGERIO FRANQUELO", codigo: "429", placa: "GOV1D72" }, { nome: "PAULO VICENTE DOS SANTOS", codigo: "784", placa: "ALT5H85" }, { nome: "PETERSON VINICIUS DOS SANTOS CARDOSO", codigo: "444", placa: "BBV9E74" }, { nome: "RAFAEL GOMES FERREIRA", codigo: "133", placa: "AYG9C89" }, { nome: "RAFAEL ROMUALDO DA SILVA", codigo: "424", placa: "OCJ7J49" }, { nome: "REGINALDO APARECIDO DOS SANTOS", codigo: "297", placa: "A0Z3J39" }, { nome: "REGINALDO GOMES DE ARRUDA", codigo: "824", placa: "OQU7J49" }, { nome: "REINALDO APARECIDO PONTES", codigo: "372", placa: "MQS9C71" }, { nome: "RENATO RODRIGUES OLIVEIRA", codigo: "132", placa: "AQT5B32" }, { nome: "RICARDO INVINCICNHI", codigo: "839", placa: "DQR8B21" }, { nome: "RICARDO INNVINNCHL", codigo: "829", placa: "DQR0B21" }, { nome: "ROBERTO GOMES DE ABREU", codigo: "432", placa: "BCZ3F43" }, { nome: "ROBERTO PEREIRA FELIX", codigo: "822", placa: "AKC6G32" }, { nome: "ROBERTO RIBEIRO", codigo: "820", placa: "AXX9H77" }, { nome: "ROBERTO ROMOALDO DA SILVA", codigo: "432", placa: "ACC3A57" }, { nome: "RODRIGO DE SOUSA", codigo: "513", placa: "AMH4D32" }, { nome: "RONALDO VALENTIN DAMACENO", codigo: "384", placa: "ANC4J53" }, { nome: "SANDERSON HERCULANO DA COSTA", codigo: "245", placa: "AYN7G19" }, { nome: "SILVIO CESAR SHIGEAKI FURUMITI", codigo: "814", placa: "DJC2D45" }, { nome: "TIAGO GALETI", codigo: "872", placa: "AXN0F66" }, { nome: "VAGNER APARECIDO SAQUELI", codigo: "425", placa: "AXX9H76" }, { nome: "VAGNER JOSE LIMA DE SOUZA", codigo: "915", placa: "AUH6F51" }, { nome: "VALDEILDO DE SOUZA", codigo: "402", placa: "MJB2C47" }, { nome: "VALDINEI DE SOUZA", codigo: "435", placa: "AJI8236" }, { nome: "VALDINEI JOSE CALLADO", codigo: "460", placa: "KCR2E43" }, { nome: "VALDIR ZAMONETA", codigo: "828", placa: "DHF588" }, { nome: "VINICIUS PEREIRA SOARES", codigo: "503", placa: "BAN8678" }, { nome: "VOLMIR DA SILVA", codigo: "419", placa: "AME2C78" }, { nome: "WESLEY DAYRTON DO NASCIMENTO", codigo: "485", placa: "MKN-1D60" }, { nome: "WILSON ALVES SILVEIRA", codigo: "874", placa: "DAH4G00" }
         ];
         
+        // --- Elementos do DOM ---
         const emailDestinatarioInput = document.getElementById('emailDestinatario');
         const emailCopiaInput = document.getElementById('emailCopia');
+        // Novos elementos para a Portaria
+        const emailDestinatarioPortariaInput = document.getElementById('emailDestinatarioPortaria');
+        const emailCopiaPortariaInput = document.getElementById('emailCopiaPortaria');
+
+        // ... (resto dos elementos do DOM permanecem iguais)
         const motoristaCreditoSelect = document.getElementById('motoristaCredito');
         const kmInformadoInput = document.getElementById('kmInformado');
         const kmPagoInput = document.getElementById('kmPago');
@@ -228,8 +244,11 @@
 
         let motoristasProcessados = [];
         
+        // --- LÓGICA DE PERSISTÊNCIA DE DADOS ---
+        // Adicionados os novos campos da portaria na lista
         const fieldsToSave = [
-            'emailDestinatario', 'emailCopia', 'motoristaCredito', 'kmInformado', 'kmPago', 'motivo', 'valorKm',
+            'emailDestinatario', 'emailCopia', 'emailDestinatarioPortaria', 'emailCopiaPortaria',
+            'motoristaCredito', 'kmInformado', 'kmPago', 'motivo', 'valorKm',
             'autorizacaoSaida', 'nomeRemetenteCredito', 'motoristaPortaria', 'tipoVeiculo', 'nomeRemetentePortaria',
             'motoristaOriginal', 'motoristaSubstituto', 'valorTotalFrete', 'numeroSaidaTransbordo', 'totalEntregas',
             'entregasFeitas', 'nomeRemetenteTransbordo'
@@ -247,16 +266,13 @@
                 if (checkedRadio) data[radioNameToSave] = checkedRadio.value;
                 
                 localStorage.setItem('logisticaAppData', JSON.stringify(data));
-            } catch (error) {
-                console.error("Erro ao salvar dados:", error);
-            }
+            } catch (error) { console.error("Erro ao salvar dados:", error); }
         }
 
         function loadData() {
             try {
                 const savedDataJSON = localStorage.getItem('logisticaAppData');
                 if (!savedDataJSON) return;
-
                 const data = JSON.parse(savedDataJSON);
                 fieldsToSave.forEach(id => {
                     const element = document.getElementById(id);
@@ -264,7 +280,6 @@
                         element.value = data[id];
                     }
                 });
-
                 if (data[radioNameToSave]) {
                     const radioToSelect = document.querySelector(`input[name="${radioNameToSave}"][value="${data[radioNameToSave]}"]`);
                     if (radioToSelect) {
@@ -302,7 +317,6 @@
             const corpoFormatado = encodeURIComponent(corpo);
             const assuntoFormatado = encodeURIComponent(assunto);
             let mailtoLink = `mailto:${encodeURIComponent(destinatario)}?subject=${assuntoFormatado}&body=${corpoFormatado}`;
-            
             if (copia && copia.trim() !== '') {
                 mailtoLink += `&cc=${encodeURIComponent(copia)}`;
             }
@@ -310,11 +324,11 @@
         }
 
         function gerarEmailCredito() {
+            // Usa os campos de e-mail gerais
             const destinatario = emailDestinatarioInput.value;
             const copia = emailCopiaInput.value;
             const nomeMotorista = motoristaCreditoSelect.value;
             if (!destinatario || !nomeMotorista) { alert("Preencha o e-mail do destinatário e selecione um motorista."); return; }
-            
             const kmInformado = parseFloat(kmInformadoInput.value);
             const kmPago = parseFloat(kmPagoInput.value);
             if (isNaN(kmInformado) || isNaN(kmPago) || kmInformado <= kmPago) {
@@ -324,50 +338,46 @@
             const valorCredito = ((kmInformado - kmPago) * parseFloat(valorKmInput.value)).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
             const autorizacao = autorizacaoSaidaInput.value.trim();
             const textoAutorizacao = autorizacao ? `Número da Saída: ${autorizacao}\n` : '';
-            const saudacao = new Date().getHours() < 12 ? "Bom dia" : "Boa tarde";
+            const saudacao = new Date().getHours() < 18 ? "Bom dia" : "Boa noite";
             const remetente = nomeRemetenteCreditoInput.value.trim() || "Att.";
-            
             const assunto = `Lançamento de Crédito - Diferença de KM - ${motorista.nome}`;
             const corpo = `${saudacao} Ana,\n\nPor gentileza, lançar um crédito no valor de ${valorCredito} para o motorista ${motorista.nome}, referente a diferença de ${kmInformado - kmPago} km ${motivoSelect.value}.\n\nSeguem os dados para conferência:\n\nMotorista: ${motorista.nome}\nLCONT00${motorista.codigo}\nPlaca: ${motorista.placa}\n${textoAutorizacao}\nQualquer dúvida, estou à disposição.\n\n${remetente}`;
-            
             enviarEmail(destinatario, copia, assunto, corpo);
         }
 
         function gerarEmailPortaria() {
-            const destinatario = emailDestinatarioInput.value;
-            const copia = emailCopiaInput.value;
+            // MODIFICADO: Usa os campos de e-mail específicos da portaria
+            const destinatario = emailDestinatarioPortariaInput.value;
+            const copia = emailCopiaPortariaInput.value;
             const nomeMotorista = motoristaPortariaSelect.value;
-            if (!destinatario || !nomeMotorista) { alert("Preencha o e-mail do destinatário e selecione um motorista."); return; }
+            if (!destinatario || !nomeMotorista) { alert("Preencha o e-mail do destinatário da portaria e selecione um motorista."); return; }
             const motorista = motoristas.find(m => m.nome === nomeMotorista);
             const remetente = nomeRemetentePortariaInput.value.trim() || "Att.";
-            
+            const saudacao = new Date().getHours() < 18 ? "Bom dia" : "Boa noite";
             const assunto = `Liberação para Abastecimento - ${motorista.nome}`;
-            const corpo = `${new Date().getHours() < 12 ? "Bom dia" : "Boa tarde"},\n\nPor gentileza, liberar o motorista ${nomeMotorista} para fazer o abastecimento do(a) ${tipoVeiculoSelect.value}, placa ${motorista.placa}.\n\nObrigado.\n\n${remetente}`;
-            
+            const corpo = `${saudacao},\n\nPor gentileza, liberar o motorista ${nomeMotorista} para fazer o abastecimento do(a) ${tipoVeiculoSelect.value}, placa ${motorista.placa}.\n\nObrigado.\n\n${remetente}`;
             enviarEmail(destinatario, copia, assunto, corpo);
         }
 
         function gerarEmailTransbordo() {
+            // Usa os campos de e-mail gerais
             const destinatario = emailDestinatarioInput.value;
             const copia = emailCopiaInput.value;
             const nomeOriginal = motoristaOriginalSelect.value;
             const nomeSubstituto = motoristaSubstitutoSelect.value;
             if (!destinatario || !nomeOriginal || !nomeSubstituto) { alert("Preencha o e-mail do destinatário e selecione os dois motoristas."); return; }
             if (nomeOriginal === nomeSubstituto) { alert("O motorista original e o substituto não podem ser os mesmos."); return; }
-            
             const valorTotal = parseFloat(valorTotalFreteInput.value);
             if (isNaN(valorTotal) || valorTotal <= 0) { alert("Insira um valor de frete válido."); return; }
-            
             const motoristaOriginal = motoristas.find(m => m.nome === nomeOriginal);
             const motoristaSubstituto = motoristas.find(m => m.nome === nomeSubstituto);
             const tipo = document.querySelector('input[name="tipoTransbordo"]:checked').value;
             const numeroSaida = numeroSaidaTransbordoInput.value.trim();
             const textoNumeroSaida = numeroSaida ? `Número da Saída de referência: ${numeroSaida}\n` : '';
-            const saudacao = new Date().getHours() < 12 ? "Bom dia" : "Boa tarde";
+            const saudacao = new Date().getHours() < 18 ? "Bom dia" : "Boa noite";
             const remetente = nomeRemetenteTransbordoInput.value.trim() || "Att.";
             let assunto = '';
             let corpo = '';
-
             if (tipo === 'proporcional') {
                 const totalEntregas = parseInt(totalEntregasInput.value);
                 const entregasFeitas = parseInt(entregasFeitasInput.value);
@@ -376,7 +386,6 @@
                 }
                 const valorOriginal = (valorTotal / totalEntregas * entregasFeitas);
                 const valorSubstituto = valorTotal - valorOriginal;
-                
                 assunto = `Lançamento Proporcional - Transbordo de Rota (Saída ${numeroSaida || 'N/A'})`;
                 corpo = `${saudacao} Ana,\n\nPor favor, lançar o valor proporcional referente ao transbordo feito entre os motoristas abaixo.\n${textoNumeroSaida}\n---\nMOTORISTA ORIGINAL (com problema):\nNome: ${motoristaOriginal.nome}\nLCONT00${motoristaOriginal.codigo}\nPlaca: ${motoristaOriginal.placa}\nVALOR A RECEBER: ${valorOriginal.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })} (referente a ${entregasFeitas} de ${totalEntregas} entregas)\n---\nMOTORISTA SUBSTITUTO (que assumiu):\nNome: ${motoristaSubstituto.nome}\nLCONT00${motoristaSubstituto.codigo}\nPlaca: ${motoristaSubstituto.placa}\nVALOR A RECEBER: ${valorSubstituto.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })} (referente às ${totalEntregas - entregasFeitas} entregas restantes)\n---\n\nQualquer dúvida, estou à disposição.\n\n${remetente}`;
             } else { // Integral
@@ -392,9 +401,7 @@
             popularMotoristas(motoristaPortariaSelect);
             popularMotoristas(motoristaOriginalSelect);
             popularMotoristas(motoristaSubstitutoSelect);
-
             loadData();
-
             const container = document.querySelector('.container');
             container.addEventListener('change', saveData);
             container.addEventListener('keyup', saveData);
@@ -410,6 +417,8 @@
             modeTransbordoBtn: document.getElementById('formTransbordo'),
         };
 
+        const generalEmailFieldsDiv = document.getElementById('generalEmailFields');
+
         Object.keys(modos).forEach(btnId => {
             document.getElementById(btnId).addEventListener('click', (e) => {
                 e.preventDefault();
@@ -418,6 +427,13 @@
                 
                 modos[btnId].style.display = 'block';
                 document.getElementById(btnId).classList.add('active');
+
+                // LÓGICA PARA MOSTRAR/ESCONDER OS CAMPOS DE E-MAIL
+                if (btnId === 'modePortariaBtn') {
+                    generalEmailFieldsDiv.style.display = 'none';
+                } else {
+                    generalEmailFieldsDiv.style.display = 'block';
+                }
             });
         });
 

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistema de Logística v15 [E-mails Independentes]</title>
+    <title>Sistema de Logística v16 [Busca de Motoristas]</title>
     <style>
         /* --- ESTILOS GERAIS (CSS) - TEMA ESCURO --- */
         @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
@@ -85,6 +85,11 @@
             box-shadow: 0 0 8px rgba(74, 144, 226, 0.3);
         }
 
+        /* Estilo específico para a barra de busca */
+        .search-input {
+            margin-bottom: 8px;
+        }
+
         .btn {
             padding: 14px 20px;
             font-size: 16px;
@@ -143,6 +148,7 @@
         <div id="formCredito">
              <div class="form-group full-width">
                 <label for="motoristaCredito">Selecione o Motorista:</label>
+                <input type="text" id="searchMotoristaCredito" class="search-input" placeholder="Digite para buscar...">
                 <select id="motoristaCredito"></select>
             </div>
             <div class="form-grid">
@@ -169,6 +175,7 @@
 
              <div class="form-group full-width">
                 <label for="motoristaPortaria">Selecione o Motorista:</label>
+                <input type="text" id="searchMotoristaPortaria" class="search-input" placeholder="Digite para buscar...">
                 <select id="motoristaPortaria"></select>
             </div>
              <div class="form-grid">
@@ -191,8 +198,16 @@
                 </div>
             </div>
             <div class="form-grid">
-                <div class="form-group"><label for="motoristaOriginal">Motorista Original (com problema):</label><select id="motoristaOriginal"></select></div>
-                <div class="form-group"><label for="motoristaSubstituto">Motorista Substituto:</label><select id="motoristaSubstituto"></select></div>
+                <div class="form-group">
+                    <label for="motoristaOriginal">Motorista Original (com problema):</label>
+                    <input type="text" id="searchMotoristaOriginal" class="search-input" placeholder="Digite para buscar...">
+                    <select id="motoristaOriginal"></select>
+                </div>
+                <div class="form-group">
+                    <label for="motoristaSubstituto">Motorista Substituto:</label>
+                    <input type="text" id="searchMotoristaSubstituto" class="search-input" placeholder="Digite para buscar...">
+                    <select id="motoristaSubstituto"></select>
+                </div>
                 <div class="form-group"><label for="valorTotalFrete">Valor Total do Frete (R$):</label><input type="number" id="valorTotalFrete" placeholder="Ex: 350.00"></div>
                 <div class="form-group"><label for="numeroSaidaTransbordo">Número da Saída:</label><input type="number" id="numeroSaidaTransbordo" placeholder="Ex: 67890"></div>
             </div>
@@ -214,11 +229,8 @@
         // --- Elementos do DOM ---
         const emailDestinatarioInput = document.getElementById('emailDestinatario');
         const emailCopiaInput = document.getElementById('emailCopia');
-        // Novos elementos para a Portaria
         const emailDestinatarioPortariaInput = document.getElementById('emailDestinatarioPortaria');
         const emailCopiaPortariaInput = document.getElementById('emailCopiaPortaria');
-
-        // ... (resto dos elementos do DOM permanecem iguais)
         const motoristaCreditoSelect = document.getElementById('motoristaCredito');
         const kmInformadoInput = document.getElementById('kmInformado');
         const kmPagoInput = document.getElementById('kmPago');
@@ -244,8 +256,6 @@
 
         let motoristasProcessados = [];
         
-        // --- LÓGICA DE PERSISTÊNCIA DE DADOS ---
-        // Adicionados os novos campos da portaria na lista
         const fieldsToSave = [
             'emailDestinatario', 'emailCopia', 'emailDestinatarioPortaria', 'emailCopiaPortaria',
             'motoristaCredito', 'kmInformado', 'kmPago', 'motivo', 'valorKm',
@@ -304,15 +314,41 @@
             }).sort((a, b) => a.nome.localeCompare(b.nome));
         }
 
-        function popularMotoristas(selectElement) {
-            selectElement.innerHTML = '<option value="" disabled selected>-- Escolha um motorista --</option>';
-            motoristasProcessados.forEach(m => {
+        // Função modificada para aceitar uma lista de motoristas para popular
+        function popularMotoristas(selectElement, driverList = motoristasProcessados) {
+            const currentValue = selectElement.value;
+            selectElement.innerHTML = '<option value="" disabled>-- Escolha um motorista --</option>';
+            
+            driverList.forEach(m => {
                 const option = document.createElement('option');
-                option.value = m.nome; option.textContent = m.nome;
+                option.value = m.nome;
+                option.textContent = m.nome;
                 selectElement.appendChild(option);
             });
+
+            // Se a lista filtrada ainda contém o valor que estava selecionado, mantém selecionado
+            if (driverList.some(m => m.nome === currentValue)) {
+                selectElement.value = currentValue;
+            } else if (driverList.length > 0) {
+                // Seleciona o primeiro item se a seleção anterior não existir mais
+                selectElement.value = "";
+            }
         }
         
+        // NOVA FUNÇÃO: Liga uma barra de busca a uma lista de seleção
+        function linkSearchToSelect(inputId, selectId) {
+            const searchInput = document.getElementById(inputId);
+            const selectElement = document.getElementById(selectId);
+
+            searchInput.addEventListener('keyup', () => {
+                const searchTerm = searchInput.value.toLowerCase();
+                const filteredDrivers = motoristasProcessados.filter(driver =>
+                    driver.nome.toLowerCase().includes(searchTerm)
+                );
+                popularMotoristas(selectElement, filteredDrivers);
+            });
+        }
+
         function enviarEmail(destinatario, copia, assunto, corpo) {
             const corpoFormatado = encodeURIComponent(corpo);
             const assuntoFormatado = encodeURIComponent(assunto);
@@ -324,7 +360,6 @@
         }
 
         function gerarEmailCredito() {
-            // Usa os campos de e-mail gerais
             const destinatario = emailDestinatarioInput.value;
             const copia = emailCopiaInput.value;
             const nomeMotorista = motoristaCreditoSelect.value;
@@ -338,7 +373,7 @@
             const valorCredito = ((kmInformado - kmPago) * parseFloat(valorKmInput.value)).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
             const autorizacao = autorizacaoSaidaInput.value.trim();
             const textoAutorizacao = autorizacao ? `Número da Saída: ${autorizacao}\n` : '';
-            const saudacao = new Date().getHours() < 18 ? "Bom dia" : "Boa noite";
+            const saudacao = new Date().getHours() < 12 ? "Bom dia" : "Boa tarde";
             const remetente = nomeRemetenteCreditoInput.value.trim() || "Att.";
             const assunto = `Lançamento de Crédito - Diferença de KM - ${motorista.nome}`;
             const corpo = `${saudacao} Ana,\n\nPor gentileza, lançar um crédito no valor de ${valorCredito} para o motorista ${motorista.nome}, referente a diferença de ${kmInformado - kmPago} km ${motivoSelect.value}.\n\nSeguem os dados para conferência:\n\nMotorista: ${motorista.nome}\nLCONT00${motorista.codigo}\nPlaca: ${motorista.placa}\n${textoAutorizacao}\nQualquer dúvida, estou à disposição.\n\n${remetente}`;
@@ -346,21 +381,19 @@
         }
 
         function gerarEmailPortaria() {
-            // MODIFICADO: Usa os campos de e-mail específicos da portaria
             const destinatario = emailDestinatarioPortariaInput.value;
             const copia = emailCopiaPortariaInput.value;
             const nomeMotorista = motoristaPortariaSelect.value;
             if (!destinatario || !nomeMotorista) { alert("Preencha o e-mail do destinatário da portaria e selecione um motorista."); return; }
             const motorista = motoristas.find(m => m.nome === nomeMotorista);
             const remetente = nomeRemetentePortariaInput.value.trim() || "Att.";
-            const saudacao = new Date().getHours() < 18 ? "Bom dia" : "Boa noite";
+            const saudacao = new Date().getHours() < 12 ? "Bom dia" : "Boa tarde";
             const assunto = `Liberação para Abastecimento - ${motorista.nome}`;
             const corpo = `${saudacao},\n\nPor gentileza, liberar o motorista ${nomeMotorista} para fazer o abastecimento do(a) ${tipoVeiculoSelect.value}, placa ${motorista.placa}.\n\nObrigado.\n\n${remetente}`;
             enviarEmail(destinatario, copia, assunto, corpo);
         }
 
         function gerarEmailTransbordo() {
-            // Usa os campos de e-mail gerais
             const destinatario = emailDestinatarioInput.value;
             const copia = emailCopiaInput.value;
             const nomeOriginal = motoristaOriginalSelect.value;
@@ -374,7 +407,7 @@
             const tipo = document.querySelector('input[name="tipoTransbordo"]:checked').value;
             const numeroSaida = numeroSaidaTransbordoInput.value.trim();
             const textoNumeroSaida = numeroSaida ? `Número da Saída de referência: ${numeroSaida}\n` : '';
-            const saudacao = new Date().getHours() < 18 ? "Bom dia" : "Boa noite";
+            const saudacao = new Date().getHours() < 12 ? "Bom dia" : "Boa tarde";
             const remetente = nomeRemetenteTransbordoInput.value.trim() || "Att.";
             let assunto = '';
             let corpo = '';
@@ -397,11 +430,20 @@
         
         document.addEventListener('DOMContentLoaded', () => {
             processarListaMotoristas();
+            // Popula as listas com todos os motoristas inicialmente
             popularMotoristas(motoristaCreditoSelect);
             popularMotoristas(motoristaPortariaSelect);
             popularMotoristas(motoristaOriginalSelect);
             popularMotoristas(motoristaSubstitutoSelect);
+
             loadData();
+
+            // Ativa a funcionalidade de busca para cada campo
+            linkSearchToSelect('searchMotoristaCredito', 'motoristaCredito');
+            linkSearchToSelect('searchMotoristaPortaria', 'motoristaPortaria');
+            linkSearchToSelect('searchMotoristaOriginal', 'motoristaOriginal');
+            linkSearchToSelect('searchMotoristaSubstituto', 'motoristaSubstituto');
+            
             const container = document.querySelector('.container');
             container.addEventListener('change', saveData);
             container.addEventListener('keyup', saveData);
@@ -428,7 +470,6 @@
                 modos[btnId].style.display = 'block';
                 document.getElementById(btnId).classList.add('active');
 
-                // LÓGICA PARA MOSTRAR/ESCONDER OS CAMPOS DE E-MAIL
                 if (btnId === 'modePortariaBtn') {
                     generalEmailFieldsDiv.style.display = 'none';
                 } else {

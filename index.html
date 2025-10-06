@@ -151,14 +151,6 @@
     <div class="container">
         <h1>Gerador de E-mail para Logística</h1>
         
-        <div class="form-group full-width">
-            <label for="assinaturaEditavel">Sua Assinatura Digital</label>
-            <div id="assinaturaEditavel" contenteditable="true"></div>
-            <button id="copiarAssinaturaBtn" class="btn btn-primary btn-copy">Copiar Assinatura</button>
-        </div>
-
-        <hr style="border-color: var(--border-color); margin: 25px 0;">
-
         <div class="mode-switcher">
             <button id="modeCreditoBtn" class="btn btn-mode active">Crédito por KM</button>
             <button id="modePortariaBtn" class="btn btn-mode">Liberação Portaria</button>
@@ -280,6 +272,15 @@
             </div>
             <button id="gerarTransbordoBtn" class="btn btn-primary">Preparar E-mail para Envio</button>
         </div>
+
+        <hr style="border-color: var(--border-color); margin: 35px 0 25px 0;">
+
+        <div class="form-group full-width">
+            <label for="assinaturaEditavel">Sua Assinatura Digital</label>
+            <div id="assinaturaEditavel" contenteditable="true"></div>
+            <button id="copiarAssinaturaBtn" class="btn btn-primary btn-copy">Copiar Assinatura</button>
+        </div>
+
     </div>
 
     <script>
@@ -599,7 +600,7 @@
 
             } catch (err) {
                 console.error('Falha ao copiar assinatura: ', err);
-                alert('Ocorreu um erro ao copiar a assinatura. Tente selecionar manualmente (Ctrl+A) e copiar (Ctrl+C).');
+                alert('Ocorreu um erro ao copiar a assinatura. Tente selecionar manually (Ctrl+A) e copiar (Ctrl+C).');
             }
         });
         

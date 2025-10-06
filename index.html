@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistema de Logística v16 [Busca de Motoristas]</title>
+    <title>Sistema de Logística v16 [CORRIGIDO]</title>
     <style>
         /* --- ESTILOS GERAIS (CSS) - TEMA ESCURO --- */
         @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
@@ -210,10 +210,13 @@
                 </div>
                 <div class="form-group"><label for="valorTotalFrete">Valor Total do Frete (R$):</label><input type="number" id="valorTotalFrete" placeholder="Ex: 350.00"></div>
                 <div class="form-group"><label for="numeroSaidaTransbordo">Número da Saída:</label><input type="number" id="numeroSaidaTransbordo" placeholder="Ex: 67890"></div>
-            </div>
-            <div id="camposProporcional" class="form-grid">
-                 <div class="form-group"><label for="totalEntregas">Nº Total de Entregas:</label><input type="number" id="totalEntregas" placeholder="Ex: 7"></div>
-                 <div class="form-group"><label for="entregasFeitas">Nº Entregas feitas pelo Original:</label><input type="number" id="entregasFeitas" placeholder="Ex: 3"></div>
+                
+                <div id="camposProporcional" class="full-width">
+                    <div class="form-grid">
+                         <div class="form-group"><label for="totalEntregas">Nº Total de Entregas:</label><input type="number" id="totalEntregas" placeholder="Ex: 7"></div>
+                         <div class="form-group"><label for="entregasFeitas">Nº Entregas feitas pelo Original:</label><input type="number" id="entregasFeitas" placeholder="Ex: 3"></div>
+                    </div>
+                </div>
             </div>
             <div class="form-group full-width"><label for="nomeRemetenteTransbordo">Seu Nome (para assinatura):</label><input type="text" id="nomeRemetenteTransbordo" placeholder="Seu nome completo"></div>
             <button id="gerarTransbordoBtn" class="btn btn-primary">Preparar E-mail para Envio</button>
@@ -314,7 +317,6 @@
             }).sort((a, b) => a.nome.localeCompare(b.nome));
         }
 
-        // Função modificada para aceitar uma lista de motoristas para popular
         function popularMotoristas(selectElement, driverList = motoristasProcessados) {
             const currentValue = selectElement.value;
             selectElement.innerHTML = '<option value="" disabled>-- Escolha um motorista --</option>';
@@ -326,16 +328,13 @@
                 selectElement.appendChild(option);
             });
 
-            // Se a lista filtrada ainda contém o valor que estava selecionado, mantém selecionado
             if (driverList.some(m => m.nome === currentValue)) {
                 selectElement.value = currentValue;
-            } else if (driverList.length > 0) {
-                // Seleciona o primeiro item se a seleção anterior não existir mais
+            } else {
                 selectElement.value = "";
             }
         }
         
-        // NOVA FUNÇÃO: Liga uma barra de busca a uma lista de seleção
         function linkSearchToSelect(inputId, selectId) {
             const searchInput = document.getElementById(inputId);
             const selectElement = document.getElementById(selectId);
@@ -480,10 +479,10 @@
 
         radiosTransbordo.forEach(radio => {
             radio.addEventListener('change', () => {
-                camposProporcionalDiv.style.display = radio.value === 'proporcional' ? 'grid' : 'none';
+                // CORREÇÃO JS: Altera 'grid' para 'block' para funcionar com a nova estrutura HTML
+                camposProporcionalDiv.style.display = radio.value === 'proporcional' ? 'block' : 'none';
             });
         });
     </script>
 </body>
 </html>
-

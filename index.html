@@ -501,7 +501,7 @@
             const remetente = nomeRemetentePortariaInput.value.trim() || "Att.";
             const saudacao = new Date().getHours() < 12 ? "Bom dia" : "Boa tarde";
             const assunto = `Liberação para Abastecimento - ${motorista.nome}`;
-            const corpo = `${saudacao},\n\nPor gentileza, liberar o motorista ${nomeMotorista} para fazer o abastecimento do(a) ${tipoVeiculoSelect.value}, placa ${motorista.placa}.\n\nObrigado.\n\n${remetente}`;
+            const corpo = `${saudacao},\n\nPor gentileza, liberar o motorista ${nomeMotorista} para fazer o abastecimento do veículo ${tipoVeiculoSelect.value}, placa ${motorista.placa}.\n\nObrigado.\n\n${remetente}`;
             enviarEmail(destinatario, copia, assunto, corpo);
         }
 
@@ -637,3 +637,4 @@
     </script>
 </body>
 </html>
+

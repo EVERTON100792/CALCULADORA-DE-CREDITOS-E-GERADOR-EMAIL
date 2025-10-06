@@ -66,7 +66,7 @@
             color: var(--label-color);
         }
         .radio-group label { margin-bottom: 0; margin-left: 5px; font-weight: 400;}
-        .radio-group div { display: flex; align-items: center; }
+        .radio-group div { display: flex; align-items: center; margin-bottom: 5px; }
 
 
         input, select {
@@ -197,6 +197,7 @@
                     <label for="tipoIntegral">Pagamento Integral (sem entregas feitas)</label>
                 </div>
             </div>
+            
             <div class="form-grid">
                 <div class="form-group">
                     <label for="motoristaOriginal">Motorista Original (com problema):</label>
@@ -479,7 +480,7 @@
 
         radiosTransbordo.forEach(radio => {
             radio.addEventListener('change', () => {
-                // CORREÇÃO JS: Altera 'grid' para 'block' para funcionar com a nova estrutura HTML
+                // CORREÇÃO APLICADA AQUI
                 camposProporcionalDiv.style.display = radio.value === 'proporcional' ? 'block' : 'none';
             });
         });

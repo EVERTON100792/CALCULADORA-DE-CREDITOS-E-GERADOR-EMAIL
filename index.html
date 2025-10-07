@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistema de Logística v18.0 [Assinatura Copiável]</title>
+    <title>Sistema de Logística v19.0 [Assinatura e Remonte]</title>
     <style>
         /* --- ESTILOS GERAIS (CSS) - TEMA ESCURO --- */
         @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
@@ -95,7 +95,7 @@
         .btn-primary:hover { background-color: var(--primary-hover-color); }
         .btn:active { transform: translateY(1px); }
         
-        .mode-switcher { display: flex; gap: 10px; margin-bottom: 25px; }
+        .mode-switcher { display: flex; gap: 10px; margin-bottom: 25px; flex-wrap: wrap; }
         .btn-mode {
             flex-grow: 1; padding: 12px;
             background-color: var(--input-bg-color); color: var(--label-color);
@@ -116,7 +116,6 @@
          .preview-box strong { color: var(--primary-color); font-weight: 700; }
         .preview-box div { margin-top: 5px; }
 
-        /* --- NOVO: Estilos para a caixa de assinatura --- */
         #assinaturaEditavel {
             background-color: var(--input-bg-color);
             border: 1px solid var(--border-color);
@@ -127,7 +126,6 @@
             cursor: text;
         }
 
-        /* Placeholder para a caixa de assinatura */
         #assinaturaEditavel:empty::before {
             content: "Clique aqui e cole sua assinatura completa (com imagens e links)";
             color: #777;
@@ -155,6 +153,7 @@
             <button id="modeCreditoBtn" class="btn btn-mode active">Crédito por KM</button>
             <button id="modePortariaBtn" class="btn btn-mode">Liberação Portaria</button>
             <button id="modeTransbordoBtn" class="btn btn-mode">Transbordo</button>
+            <button id="modeRemonteBtn" class="btn btn-mode">Remonte</button>
         </div>
         
         <div id="generalEmailFields">
@@ -272,6 +271,32 @@
             </div>
             <button id="gerarTransbordoBtn" class="btn btn-primary">Preparar E-mail para Envio</button>
         </div>
+        
+        <div id="formRemonte" style="display: none;">
+            <div class="form-group full-width">
+                <label for="emailDestinatarioRemonte">Destinatário da Supervisão (separar por vírgula):</label>
+                <input type="text" id="emailDestinatarioRemonte" value="patricia@empresa.com" placeholder="supervisor@exemplo.com">
+            </div>
+            <div class="form-group full-width">
+                <label for="emailCopiaRemonte">CC Remonte (em cópia - separar por vírgula):</label>
+                <input type="text" id="emailCopiaRemonte" placeholder="copia.remonte@exemplo.com">
+            </div>
+            <hr style="border-color: var(--border-color); margin: 15px 0;">
+
+             <div class="form-group full-width">
+                <label for="motoristaRemonte">Selecione o Motorista:</label>
+                <input type="text" id="searchMotoristaRemonte" class="search-input" placeholder="Digite para buscar...">
+                <select id="motoristaRemonte"></select>
+            </div>
+             <div class="form-grid">
+                <div class="form-group"><label for="tipoVeiculoRemonte">Tipo de Veículo:</label><select id="tipoVeiculoRemonte"><option value="VAN">VAN</option><option value="FIORINO">FIORINO</option><option value="3/4" selected>3/4</option><option value="TOCO">TOCO</option></select></div>
+                <div class="form-group"><label for="numeroRomaneioRemonte">Número do Romaneio:</label><input type="number" id="numeroRomaneioRemonte" placeholder="Ex: 231556"></div>
+                <div class="form-group full-width"><label for="dataCarregamentoRemonte">Data do Carregamento:</label><input type="text" id="dataCarregamentoRemonte" placeholder="Ex: quinta (11/09)"></div>
+                <div class="form-group"><label for="nomeSupervisoraRemonte">Nome da Supervisora:</label><input type="text" id="nomeSupervisoraRemonte" value="Patrícia"></div>
+                 <div class="form-group"><label for="nomeRemetenteRemonte">Seu Nome (assinatura):</label><input type="text" id="nomeRemetenteRemonte" placeholder="Seu nome completo"></div>
+            </div>
+            <button id="gerarRemonteBtn" class="btn btn-primary">Preparar E-mail para Envio</button>
+        </div>
 
         <hr style="border-color: var(--border-color); margin: 35px 0 25px 0;">
 
@@ -291,8 +316,14 @@
         // --- INÍCIO: Seleção de Elementos ---
         const emailDestinatarioInput = document.getElementById('emailDestinatario');
         const emailCopiaInput = document.getElementById('emailCopia');
+        // Portaria
         const emailDestinatarioPortariaInput = document.getElementById('emailDestinatarioPortaria');
         const emailCopiaPortariaInput = document.getElementById('emailCopiaPortaria');
+        const motoristaPortariaSelect = document.getElementById('motoristaPortaria');
+        const tipoVeiculoSelect = document.getElementById('tipoVeiculo');
+        const nomeRemetentePortariaInput = document.getElementById('nomeRemetentePortaria');
+        const gerarPortariaBtn = document.getElementById('gerarPortariaBtn');
+        // Crédito
         const motoristaCreditoSelect = document.getElementById('motoristaCredito');
         const kmInformadoInput = document.getElementById('kmInformado');
         const kmPagoInput = document.getElementById('kmPago');
@@ -301,10 +332,7 @@
         const autorizacaoSaidaInput = document.getElementById('autorizacaoSaida');
         const nomeRemetenteCreditoInput = document.getElementById('nomeRemetenteCredito');
         const gerarCreditoBtn = document.getElementById('gerarCreditoBtn');
-        const motoristaPortariaSelect = document.getElementById('motoristaPortaria');
-        const tipoVeiculoSelect = document.getElementById('tipoVeiculo');
-        const nomeRemetentePortariaInput = document.getElementById('nomeRemetentePortaria');
-        const gerarPortariaBtn = document.getElementById('gerarPortariaBtn');
+        // Transbordo
         const motoristaOriginalSelect = document.getElementById('motoristaOriginal');
         const motoristaSubstitutoSelect = document.getElementById('motoristaSubstituto');
         const valorTotalFreteInput = document.getElementById('valorTotalFrete');
@@ -315,24 +343,34 @@
         const nomeRemetenteTransbordoInput = document.getElementById('nomeRemetenteTransbordo');
         const gerarTransbordoBtn = document.getElementById('gerarTransbordoBtn');
         const radiosTransbordo = document.querySelectorAll('input[name="tipoTransbordo"]');
-
+        // Remonte (NOVO)
+        const emailDestinatarioRemonteInput = document.getElementById('emailDestinatarioRemonte');
+        const emailCopiaRemonteInput = document.getElementById('emailCopiaRemonte');
+        const motoristaRemonteSelect = document.getElementById('motoristaRemonte');
+        const tipoVeiculoRemonteSelect = document.getElementById('tipoVeiculoRemonte');
+        const dataCarregamentoRemonteInput = document.getElementById('dataCarregamentoRemonte');
+        const numeroRomaneioRemonteInput = document.getElementById('numeroRomaneioRemonte');
+        const nomeSupervisoraRemonteInput = document.getElementById('nomeSupervisoraRemonte');
+        const nomeRemetenteRemonteInput = document.getElementById('nomeRemetenteRemonte');
+        const gerarRemonteBtn = document.getElementById('gerarRemonteBtn');
+        // Previews e Assinatura
         const previewCreditoSpan = document.getElementById('previewCredito');
         const previewValorOriginalSpan = document.getElementById('previewValorOriginal');
         const previewValorSubstitutoSpan = document.getElementById('previewValorSubstituto');
-
-        // NOVO: Seleção dos elementos da assinatura
         const assinaturaEditavelDiv = document.getElementById('assinaturaEditavel');
         const copiarAssinaturaBtn = document.getElementById('copiarAssinaturaBtn');
 
         let motoristasProcessados = [];
         
-        // NOVO: Lista de campos a salvar foi simplificada
         const fieldsToSave = [
             'emailDestinatario', 'emailCopia', 'emailDestinatarioPortaria', 'emailCopiaPortaria',
             'motoristaCredito', 'kmInformado', 'kmPago', 'motivo', 'valorKm',
             'autorizacaoSaida', 'nomeRemetenteCredito', 'motoristaPortaria', 'tipoVeiculo', 'nomeRemetentePortaria',
             'motoristaOriginal', 'motoristaSubstituto', 'valorTotalFrete', 'numeroSaidaTransbordo', 'totalEntregas',
-            'entregasFeitas', 'nomeRemetenteTransbordo'
+            'entregasFeitas', 'nomeRemetenteTransbordo',
+            // NOVO: Campos do Remonte
+            'emailDestinatarioRemonte', 'emailCopiaRemonte', 'motoristaRemonte', 'tipoVeiculoRemonte', 
+            'dataCarregamentoRemonte', 'numeroRomaneioRemonte', 'nomeSupervisoraRemonte', 'nomeRemetenteRemonte'
         ];
         const radioNameToSave = 'tipoTransbordo';
 
@@ -386,7 +424,6 @@
                 const checkedRadio = document.querySelector(`input[name="${radioNameToSave}"]:checked`);
                 if (checkedRadio) data[radioNameToSave] = checkedRadio.value;
                 
-                // Salvar a assinatura
                 data.assinaturaRichText = assinaturaEditavelDiv.innerHTML;
                 
                 localStorage.setItem('logisticaAppData', JSON.stringify(data));
@@ -411,7 +448,6 @@
                         radioToSelect.dispatchEvent(new Event('change'));
                     }
                 }
-                // Carregar a assinatura
                 if(data.assinaturaRichText) {
                     assinaturaEditavelDiv.innerHTML = data.assinaturaRichText;
                 }
@@ -434,7 +470,7 @@
 
         function popularMotoristas(selectElement, driverList = motoristasProcessados) {
             const currentValue = selectElement.value;
-            selectElement.innerHTML = '<option value="" disabled>-- Escolha um motorista --</option>';
+            selectElement.innerHTML = '<option value="" disabled selected>-- Escolha um motorista --</option>';
             driverList.forEach(m => {
                 const option = document.createElement('option');
                 option.value = m.nome;
@@ -443,7 +479,7 @@
             });
             if (driverList.some(m => m.nome === currentValue)) {
                 selectElement.value = currentValue;
-            } else {
+            } else if (!currentValue){
                 selectElement.value = "";
             }
         }
@@ -460,7 +496,6 @@
             });
         }
 
-        // Função original restaurada
         function enviarEmail(destinatario, copia, assunto, corpo) {
             const corpoFormatado = encodeURIComponent(corpo);
             const assuntoFormatado = encodeURIComponent(assunto);
@@ -539,6 +574,39 @@
             }
             enviarEmail(destinatario, copia, assunto, corpo);
         }
+
+        // NOVO: Função para gerar e-mail de Remonte
+        function gerarEmailRemonte() {
+            const destinatario = emailDestinatarioRemonteInput.value;
+            const copia = emailCopiaRemonteInput.value;
+            const nomeMotorista = motoristaRemonteSelect.value;
+            const dataCarregamento = dataCarregamentoRemonteInput.value;
+            const numeroRomaneio = numeroRomaneioRemonteInput.value;
+            const nomeSupervisora = nomeSupervisoraRemonteInput.value;
+
+            if (!destinatario || !nomeMotorista || !dataCarregamento || !numeroRomaneio || !nomeSupervisora) {
+                alert("Por favor, preencha todos os campos obrigatórios para o remonte.");
+                return;
+            }
+
+            const motorista = motoristas.find(m => m.nome === nomeMotorista);
+            if (!motorista) {
+                alert("Motorista selecionado não encontrado na base de dados.");
+                return;
+            }
+
+            const remetente = nomeRemetenteRemonteInput.value.trim() || "Att.";
+            const saudacao = new Date().getHours() < 12 ? "Bom dia" : "Boa tarde";
+
+            const assunto = `REMONTE - ${motorista.nome}`;
+
+            const corpo = `${saudacao}!\n\n` +
+                          `Contratado ${tipoVeiculoRemonteSelect.value} – ${motorista.nome} PLACA: ${motorista.placa}. Estará carregando ${dataCarregamento}, com produto em seu veículo do Romaneio ${numeroRomaneio}.\n\n` +
+                          `${nomeSupervisora}, aguardando seu Ok.\n\n` +
+                          `${remetente}`;
+
+            enviarEmail(destinatario, copia, assunto, corpo);
+        }
         
         document.addEventListener('DOMContentLoaded', () => {
             processarListaMotoristas();
@@ -546,18 +614,19 @@
             popularMotoristas(motoristaPortariaSelect);
             popularMotoristas(motoristaOriginalSelect);
             popularMotoristas(motoristaSubstitutoSelect);
+            popularMotoristas(motoristaRemonteSelect); // NOVO
             loadData();
             
             linkSearchToSelect('searchMotoristaCredito', 'motoristaCredito');
             linkSearchToSelect('searchMotoristaPortaria', 'motoristaPortaria');
             linkSearchToSelect('searchMotoristaOriginal', 'motoristaOriginal');
             linkSearchToSelect('searchMotoristaSubstituto', 'motoristaSubstituto');
+            linkSearchToSelect('searchMotoristaRemonte', 'motoristaRemonte'); // NOVO
             
-            // Evento de salvar para todos os campos e para a assinatura
             const container = document.querySelector('.container');
             container.addEventListener('change', saveData);
             container.addEventListener('keyup', saveData);
-            assinaturaEditavelDiv.addEventListener('input', saveData); // Salva ao editar assinatura
+            assinaturaEditavelDiv.addEventListener('input', saveData);
 
             kmInformadoInput.addEventListener('input', atualizarPreviewCredito);
             kmPagoInput.addEventListener('input', atualizarPreviewCredito);
@@ -575,8 +644,8 @@
         gerarCreditoBtn.addEventListener('click', gerarEmailCredito);
         gerarPortariaBtn.addEventListener('click', gerarEmailPortaria);
         gerarTransbordoBtn.addEventListener('click', gerarEmailTransbordo);
+        gerarRemonteBtn.addEventListener('click', gerarEmailRemonte); // NOVO
         
-        // --- NOVO: Lógica para copiar a assinatura ---
         copiarAssinaturaBtn.addEventListener('click', async () => {
             const htmlConteudo = assinaturaEditavelDiv.innerHTML;
             if (!htmlConteudo) {
@@ -585,12 +654,10 @@
             }
 
             try {
-                // Isso cria um item que o clipboard entende como HTML, preservando imagens e links
                 const blob = new Blob([htmlConteudo], { type: 'text/html' });
                 const clipboardItem = new ClipboardItem({ 'text/html': blob });
                 await navigator.clipboard.write([clipboardItem]);
 
-                // Feedback visual para o usuário
                 copiarAssinaturaBtn.textContent = 'Copiado!';
                 copiarAssinaturaBtn.classList.add('copied');
                 setTimeout(() => {
@@ -600,7 +667,7 @@
 
             } catch (err) {
                 console.error('Falha ao copiar assinatura: ', err);
-                alert('Ocorreu um erro ao copiar a assinatura. Tente selecionar manually (Ctrl+A) e copiar (Ctrl+C).');
+                alert('Ocorreu um erro ao copiar a assinatura. Tente selecionar manualmente (Ctrl+A) e copiar (Ctrl+C).');
             }
         });
         
@@ -608,6 +675,7 @@
             modeCreditoBtn: document.getElementById('formCredito'),
             modePortariaBtn: document.getElementById('formPortaria'),
             modeTransbordoBtn: document.getElementById('formTransbordo'),
+            modeRemonteBtn: document.getElementById('formRemonte') // NOVO
         };
 
         const generalEmailFieldsDiv = document.getElementById('generalEmailFields');
@@ -621,7 +689,8 @@
                 modos[btnId].style.display = 'block';
                 document.getElementById(btnId).classList.add('active');
 
-                if (btnId === 'modePortariaBtn') {
+                // Esconde os campos gerais para Portaria e Remonte
+                if (btnId === 'modePortariaBtn' || btnId === 'modeRemonteBtn') {
                     generalEmailFieldsDiv.style.display = 'none';
                 } else {
                     generalEmailFieldsDiv.style.display = 'block';
@@ -637,4 +706,3 @@
     </script>
 </body>
 </html>
-

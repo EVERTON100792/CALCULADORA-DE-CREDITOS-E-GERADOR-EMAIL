@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistema de Logística v19.0 [Assinatura e Remonte]</title>
+    <title>Sistema de Logística v20.0 [Assinatura, Remonte e Ajuste de Rota]</title>
     <style>
         /* --- ESTILOS GERAIS (CSS) - TEMA ESCURO --- */
         @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
@@ -127,7 +127,7 @@
         }
 
         #assinaturaEditavel:empty::before {
-            content: "Clique aqui e cole sua assinatura completa (com imagens e links)";
+            content: "Cole sua assinatura completa aqui (com imagens e links)";
             color: #777;
             font-style: italic;
         }
@@ -154,7 +154,7 @@
             <button id="modePortariaBtn" class="btn btn-mode">Liberação Portaria</button>
             <button id="modeTransbordoBtn" class="btn btn-mode">Transbordo</button>
             <button id="modeRemonteBtn" class="btn btn-mode">Remonte</button>
-        </div>
+            <button id="modeAjusteRotaBtn" class="btn btn-mode">Ajuste de Rota</button> </div>
         
         <div id="generalEmailFields">
             <div class="form-group full-width">
@@ -298,6 +298,25 @@
             <button id="gerarRemonteBtn" class="btn btn-primary">Preparar E-mail para Envio</button>
         </div>
 
+        <div id="formAjusteRota" style="display: none;">
+            <div class="form-group full-width">
+                <label for="emailDestinatarioAjusteRota">Destinatário(s) da Rota (separar por vírgula):</label>
+                <input type="text" id="emailDestinatarioAjusteRota" value="mozao@empresa.com" placeholder="email.rota@exemplo.com">
+            </div>
+            <div class="form-group full-width">
+                <label for="emailCopiaAjusteRota">CC Rota (em cópia - separar por vírgula):</label>
+                <input type="text" id="emailCopiaAjusteRota" placeholder="copia.rota@exemplo.com">
+            </div>
+            <hr style="border-color: var(--border-color); margin: 15px 0;">
+
+            <div class="form-grid">
+                <div class="form-group"><label for="clienteAjusteRota">Cliente:</label><input type="text" id="clienteAjusteRota" placeholder="Ex: 230457"></div>
+                <div class="form-group"><label for="rotaAjusteRota">Rota:</label><input type="text" id="rotaAjusteRota" placeholder="Ex: 11341"></div>
+                <div class="form-group"><label for="pracaAjusteRota">Praça:</label><input type="text" id="pracaAjusteRota" placeholder="Ex: 51815"></div>
+                 <div class="form-group full-width"><label for="nomeRemetenteAjusteRota">Seu Nome (para assinatura):</label><input type="text" id="nomeRemetenteAjusteRota" placeholder="Seu nome completo"></div>
+            </div>
+            <button id="gerarAjusteRotaBtn" class="btn btn-primary">Preparar E-mail para Envio</button>
+        </div>
         <hr style="border-color: var(--border-color); margin: 35px 0 25px 0;">
 
         <div class="form-group full-width">
@@ -343,7 +362,7 @@
         const nomeRemetenteTransbordoInput = document.getElementById('nomeRemetenteTransbordo');
         const gerarTransbordoBtn = document.getElementById('gerarTransbordoBtn');
         const radiosTransbordo = document.querySelectorAll('input[name="tipoTransbordo"]');
-        // Remonte (NOVO)
+        // Remonte
         const emailDestinatarioRemonteInput = document.getElementById('emailDestinatarioRemonte');
         const emailCopiaRemonteInput = document.getElementById('emailCopiaRemonte');
         const motoristaRemonteSelect = document.getElementById('motoristaRemonte');
@@ -353,6 +372,14 @@
         const nomeSupervisoraRemonteInput = document.getElementById('nomeSupervisoraRemonte');
         const nomeRemetenteRemonteInput = document.getElementById('nomeRemetenteRemonte');
         const gerarRemonteBtn = document.getElementById('gerarRemonteBtn');
+        // NOVO: Ajuste de Rota
+        const emailDestinatarioAjusteRotaInput = document.getElementById('emailDestinatarioAjusteRota');
+        const emailCopiaAjusteRotaInput = document.getElementById('emailCopiaAjusteRota');
+        const clienteAjusteRotaInput = document.getElementById('clienteAjusteRota');
+        const rotaAjusteRotaInput = document.getElementById('rotaAjusteRota');
+        const pracaAjusteRotaInput = document.getElementById('pracaAjusteRota');
+        const nomeRemetenteAjusteRotaInput = document.getElementById('nomeRemetenteAjusteRota');
+        const gerarAjusteRotaBtn = document.getElementById('gerarAjusteRotaBtn');
         // Previews e Assinatura
         const previewCreditoSpan = document.getElementById('previewCredito');
         const previewValorOriginalSpan = document.getElementById('previewValorOriginal');
@@ -368,9 +395,11 @@
             'autorizacaoSaida', 'nomeRemetenteCredito', 'motoristaPortaria', 'tipoVeiculo', 'nomeRemetentePortaria',
             'motoristaOriginal', 'motoristaSubstituto', 'valorTotalFrete', 'numeroSaidaTransbordo', 'totalEntregas',
             'entregasFeitas', 'nomeRemetenteTransbordo',
-            // NOVO: Campos do Remonte
             'emailDestinatarioRemonte', 'emailCopiaRemonte', 'motoristaRemonte', 'tipoVeiculoRemonte', 
-            'dataCarregamentoRemonte', 'numeroRomaneioRemonte', 'nomeSupervisoraRemonte', 'nomeRemetenteRemonte'
+            'dataCarregamentoRemonte', 'numeroRomaneioRemonte', 'nomeSupervisoraRemonte', 'nomeRemetenteRemonte',
+            // NOVO: Campos do Ajuste de Rota
+            'emailDestinatarioAjusteRota', 'emailCopiaAjusteRota', 'clienteAjusteRota', 'rotaAjusteRota', 
+            'pracaAjusteRota', 'nomeRemetenteAjusteRota'
         ];
         const radioNameToSave = 'tipoTransbordo';
 
@@ -497,12 +526,16 @@
         }
 
         function enviarEmail(destinatario, copia, assunto, corpo) {
+            // Encode de cada parte individualmente
             const corpoFormatado = encodeURIComponent(corpo);
             const assuntoFormatado = encodeURIComponent(assunto);
+
             let mailtoLink = `mailto:${encodeURIComponent(destinatario)}?subject=${assuntoFormatado}&body=${corpoFormatado}`;
+            
             if (copia && copia.trim() !== '') {
                 mailtoLink += `&cc=${encodeURIComponent(copia)}`;
             }
+            
             window.location.href = mailtoLink;
         }
 
@@ -575,7 +608,6 @@
             enviarEmail(destinatario, copia, assunto, corpo);
         }
 
-        // NOVO: Função para gerar e-mail de Remonte
         function gerarEmailRemonte() {
             const destinatario = emailDestinatarioRemonteInput.value;
             const copia = emailCopiaRemonteInput.value;
@@ -607,6 +639,58 @@
 
             enviarEmail(destinatario, copia, assunto, corpo);
         }
+
+        // NOVO: Função para gerar e-mail de Ajuste de Rota
+        function gerarEmailAjusteRota() {
+            const destinatario = emailDestinatarioAjusteRotaInput.value;
+            const copia = emailCopiaAjusteRotaInput.value;
+            const cliente = clienteAjusteRotaInput.value.trim();
+            const rota = rotaAjusteRotaInput.value.trim();
+            const praca = pracaAjusteRotaInput.value.trim();
+            const remetente = nomeRemetenteAjusteRotaInput.value.trim() || "Att.";
+
+            if (!destinatario || !cliente || !rota || !praca) {
+                alert("Por favor, preencha todos os campos obrigatórios para o ajuste de rota (Destinatário, Cliente, Rota, Praça).");
+                return;
+            }
+
+            const saudacao = new Date().getHours() < 12 ? "Bom dia" : "Boa tarde";
+            const assunto = `Ajuste de Rota e Praça`;
+
+            // Gerar a tabela HTML para o corpo do e-mail
+            const tabelaHTML = `
+                <table style="border-collapse: collapse; width: auto; font-family: 'Roboto', sans-serif; font-size: 14px;">
+                    <thead>
+                        <tr>
+                            <th style="border: 1px solid #ccc; padding: 8px; background-color: #f2f2f2; text-align: left;">Cliente</th>
+                            <th style="border: 1px solid #ccc; padding: 8px; background-color: #f2f2f2; text-align: left;">Rota</th>
+                            <th style="border: 1px solid #ccc; padding: 8px; background-color: #f2f2f2; text-align: left;">Praça</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td style="border: 1px solid #ccc; padding: 8px;">${cliente}</td>
+                            <td style="border: 1px solid #ccc; padding: 8px;">${rota}</td>
+                            <td style="border: 1px solid #ccc; padding: 8px;">${praca}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            `;
+
+            // Para o mailto, precisamos de texto simples ou HTML muito limitado.
+            // Para garantir a tabela, ela será convertida para texto com quebras de linha.
+            const corpoTexto = `${saudacao},\n\n` +
+                               `Por favor ajustar rota e praça dos clientes abaixo:\n\n` +
+                               `Cliente\tRota\tPraça\n` +
+                               `${cliente}\t${rota}\t${praca}\n\n` + // Versão em texto para melhor compatibilidade com mailto
+                               `${remetente}`;
+            
+            // Para clientes de email que suportam HTML no body (poucos no mailto)
+            // A forma mais confiável é ter o HTML completo configurado no cliente de email
+            // ou copiar manualmente. Para o `mailto`, vamos com a versão em texto.
+
+            enviarEmail(destinatario, copia, assunto, corpoTexto);
+        }
         
         document.addEventListener('DOMContentLoaded', () => {
             processarListaMotoristas();
@@ -614,14 +698,14 @@
             popularMotoristas(motoristaPortariaSelect);
             popularMotoristas(motoristaOriginalSelect);
             popularMotoristas(motoristaSubstitutoSelect);
-            popularMotoristas(motoristaRemonteSelect); // NOVO
+            popularMotoristas(motoristaRemonteSelect);
             loadData();
             
             linkSearchToSelect('searchMotoristaCredito', 'motoristaCredito');
             linkSearchToSelect('searchMotoristaPortaria', 'motoristaPortaria');
             linkSearchToSelect('searchMotoristaOriginal', 'motoristaOriginal');
             linkSearchToSelect('searchMotoristaSubstituto', 'motoristaSubstituto');
-            linkSearchToSelect('searchMotoristaRemonte', 'motoristaRemonte'); // NOVO
+            linkSearchToSelect('searchMotoristaRemonte', 'motoristaRemonte');
             
             const container = document.querySelector('.container');
             container.addEventListener('change', saveData);
@@ -644,18 +728,20 @@
         gerarCreditoBtn.addEventListener('click', gerarEmailCredito);
         gerarPortariaBtn.addEventListener('click', gerarEmailPortaria);
         gerarTransbordoBtn.addEventListener('click', gerarEmailTransbordo);
-        gerarRemonteBtn.addEventListener('click', gerarEmailRemonte); // NOVO
+        gerarRemonteBtn.addEventListener('click', gerarEmailRemonte);
+        gerarAjusteRotaBtn.addEventListener('click', gerarEmailAjusteRota); // NOVO
         
         copiarAssinaturaBtn.addEventListener('click', async () => {
             const htmlConteudo = assinaturaEditavelDiv.innerHTML;
             if (!htmlConteudo) {
-                alert("A caixa de assinatura está vazia!");
+                alert("A caixa de assinatura está vazia! Cole sua assinatura completa (com imagens e links) nela.");
                 return;
             }
 
             try {
+                // Tentativa de copiar HTML para a área de transferência para clientes que suportam
                 const blob = new Blob([htmlConteudo], { type: 'text/html' });
-                const clipboardItem = new ClipboardItem({ 'text/html': blob });
+                const clipboardItem = new ClipboardItem({ 'text/html': blob, 'text/plain': assinaturaEditavelDiv.innerText });
                 await navigator.clipboard.write([clipboardItem]);
 
                 copiarAssinaturaBtn.textContent = 'Copiado!';
@@ -667,7 +753,7 @@
 
             } catch (err) {
                 console.error('Falha ao copiar assinatura: ', err);
-                alert('Ocorreu um erro ao copiar a assinatura. Tente selecionar manualmente (Ctrl+A) e copiar (Ctrl+C).');
+                alert('Ocorreu um erro ao copiar a assinatura rica. Tente selecionar manualmente (Ctrl+A) na caixa de assinatura e copiar (Ctrl+C), ou verifique se seu navegador suporta a API ClipboardItem.');
             }
         });
         
@@ -675,7 +761,8 @@
             modeCreditoBtn: document.getElementById('formCredito'),
             modePortariaBtn: document.getElementById('formPortaria'),
             modeTransbordoBtn: document.getElementById('formTransbordo'),
-            modeRemonteBtn: document.getElementById('formRemonte') // NOVO
+            modeRemonteBtn: document.getElementById('formRemonte'),
+            modeAjusteRotaBtn: document.getElementById('formAjusteRota') // NOVO
         };
 
         const generalEmailFieldsDiv = document.getElementById('generalEmailFields');
@@ -689,8 +776,8 @@
                 modos[btnId].style.display = 'block';
                 document.getElementById(btnId).classList.add('active');
 
-                // Esconde os campos gerais para Portaria e Remonte
-                if (btnId === 'modePortariaBtn' || btnId === 'modeRemonteBtn') {
+                // Esconde os campos gerais para Portaria, Remonte e Ajuste de Rota
+                if (btnId === 'modePortariaBtn' || btnId === 'modeRemonteBtn' || btnId === 'modeAjusteRotaBtn') {
                     generalEmailFieldsDiv.style.display = 'none';
                 } else {
                     generalEmailFieldsDiv.style.display = 'block';

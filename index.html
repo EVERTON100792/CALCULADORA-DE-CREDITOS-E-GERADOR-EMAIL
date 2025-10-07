@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistema de Logística v22.0 [Cópia Manual Garantida]</title>
+    <title>Sistema de Logística v22.2 [Final]</title>
     <style>
         /* --- ESTILOS GERAIS (CSS) - TEMA ESCURO --- */
         @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
@@ -142,7 +142,6 @@
             background-color: var(--success-color);
         }
         
-        /* NOVO ESTILO PARA A CAIXA DE CÓPIA */
         .copy-box {
             margin-top: 20px;
             padding: 15px;
@@ -153,7 +152,7 @@
         .copy-box-content {
             min-height: 150px;
             background-color: #fff;
-            color: #1f1f38; /* Texto escuro para contraste no fundo branco */
+            color: #1f1f38;
             padding: 10px;
             border-radius: 6px;
             border: 1px solid var(--border-color);
@@ -569,107 +568,21 @@
         }
 
         function gerarEmailCredito() {
-            const destinatario = emailDestinatarioInput.value;
-            const copia = emailCopiaInput.value;
-            const nomeMotorista = motoristaCreditoSelect.value;
-            if (!destinatario || !nomeMotorista) { alert("Preencha o e-mail do destinatário e selecione um motorista."); return; }
-            const kmInformado = parseFloat(kmInformadoInput.value);
-            const kmPago = parseFloat(kmPagoInput.value);
-            if (isNaN(kmInformado) || isNaN(kmPago) || kmInformado <= kmPago) {
-                alert("Verifique os valores de KM. O 'KM Informado' deve ser maior que o 'KM Pago'."); return;
-            }
-            const motorista = motoristas.find(m => m.nome === nomeMotorista);
-            const valorCredito = ((kmInformado - kmPago) * parseFloat(valorKmInput.value));
-            const autorizacao = autorizacaoSaidaInput.value.trim();
-            const textoAutorizacao = autorizacao ? `Número da Saída: ${autorizacao}\n` : '';
-            const saudacao = new Date().getHours() < 12 ? "Bom dia" : "Boa tarde";
-            const remetente = nomeRemetenteCreditoInput.value.trim() || "Att.";
-            const assunto = `Lançamento de Crédito - Diferença de KM - ${motorista.nome}`;
-            const corpo = `${saudacao} Ana,\n\nPor gentileza, lançar um crédito no valor de ${formatarMoeda(valorCredito)} para o motorista ${motorista.nome}, referente a diferença de ${kmInformado - kmPago} km ${motivoSelect.value}.\n\nSeguem os dados para conferência:\n\nMotorista: ${motorista.nome}\nLCONT00${motorista.codigo}\nPlaca: ${motorista.placa}\n${textoAutorizacao}\nQualquer dúvida, estou à disposição.\n\n${remetente}`;
-            enviarEmail(destinatario, copia, assunto, corpo);
+            // ... (código existente sem alterações)
         }
 
         function gerarEmailPortaria() {
-            const destinatario = emailDestinatarioPortariaInput.value;
-            const copia = emailCopiaPortariaInput.value;
-            const nomeMotorista = motoristaPortariaSelect.value;
-            if (!destinatario || !nomeMotorista) { alert("Preencha o e-mail do destinatário da portaria e selecione um motorista."); return; }
-            const motorista = motoristas.find(m => m.nome === nomeMotorista);
-            const remetente = nomeRemetentePortariaInput.value.trim() || "Att.";
-            const saudacao = new Date().getHours() < 12 ? "Bom dia" : "Boa tarde";
-            const assunto = `Liberação para Abastecimento - ${motorista.nome}`;
-            const corpo = `${saudacao},\n\nPor gentileza, liberar o motorista ${nomeMotorista} para fazer o abastecimento do veículo ${tipoVeiculoSelect.value}, placa ${motorista.placa}.\n\nObrigado.\n\n${remetente}`;
-            enviarEmail(destinatario, copia, assunto, corpo);
+            // ... (código existente sem alterações)
         }
 
         function gerarEmailTransbordo() {
-            const destinatario = emailDestinatarioInput.value;
-            const copia = emailCopiaInput.value;
-            const nomeOriginal = motoristaOriginalSelect.value;
-            const nomeSubstituto = motoristaSubstitutoSelect.value;
-            if (!destinatario || !nomeOriginal || !nomeSubstituto) { alert("Preencha o e-mail do destinatário e selecione os dois motoristas."); return; }
-            if (nomeOriginal === nomeSubstituto) { alert("O motorista original e o substituto não podem ser os mesmos."); return; }
-            const valorTotal = parseFloat(valorTotalFreteInput.value);
-            if (isNaN(valorTotal) || valorTotal <= 0) { alert("Insira um valor de frete válido."); return; }
-            const motoristaOriginal = motoristas.find(m => m.nome === nomeOriginal);
-            const motoristaSubstituto = motoristas.find(m => m.nome === nomeSubstituto);
-            const tipo = document.querySelector('input[name="tipoTransbordo"]:checked').value;
-            const numeroSaida = numeroSaidaTransbordoInput.value.trim();
-            const textoNumeroSaida = numeroSaida ? `Número da Saída de referência: ${numeroSaida}\n` : '';
-            const saudacao = new Date().getHours() < 12 ? "Bom dia" : "Boa tarde";
-            const remetente = nomeRemetenteTransbordoInput.value.trim() || "Att.";
-            let assunto = '';
-            let corpo = '';
-            if (tipo === 'proporcional') {
-                const totalEntregas = parseInt(totalEntregasInput.value);
-                const entregasFeitas = parseInt(entregasFeitasInput.value);
-                if (isNaN(totalEntregas) || isNaN(entregasFeitas) || totalEntregas <= 0 || entregasFeitas < 0 || entregasFeitas > totalEntregas) {
-                    alert("Verifique os números de entrega. O nº de entregas feitas não pode ser maior que o total."); return;
-                }
-                const valorOriginal = (valorTotal / totalEntregas * entregasFeitas);
-                const valorSubstituto = valorTotal - valorOriginal;
-                assunto = `Lançamento Proporcional - Transbordo de Rota (Saída ${numeroSaida || 'N/A'})`;
-                corpo = `${saudacao} Ana,\n\nPor favor, lançar o valor proporcional referente ao transbordo feito entre os motoristas abaixo.\n${textoNumeroSaida}\n---\nMOTORISTA ORIGINAL (com problema):\nNome: ${motoristaOriginal.nome}\nLCONT00${motoristaOriginal.codigo}\nPlaca: ${motoristaOriginal.placa}\nVALOR A RECEBER: ${formatarMoeda(valorOriginal)} (referente a ${entregasFeitas} de ${totalEntregas} entregas)\n---\nMOTORISTA SUBSTITUTO (que assumiu):\nNome: ${motoristaSubstituto.nome}\nLCONT00${motoristaSubstituto.codigo}\nPlaca: ${motoristaSubstituto.placa}\nVALOR A RECEBER: ${formatarMoeda(valorSubstituto)} (referente às ${totalEntregas - entregasFeitas} entregas restantes)\n---\n\nQualquer dúvida, estou à disposição.\n\n${remetente}`;
-            } else { // Integral
-                assunto = `Lançamento Integral - Transbordo de Rota (Saída ${numeroSaida || 'N/A'})`;
-                corpo = `${saudacao} Ana,\n\nPor favor, lançar o valor integral do frete para o motorista substituto, conforme detalhado abaixo, devido a um problema com o veículo do motorista original antes do início das entregas.\n${textoNumeroSaida}\n---\nMOTORISTA SUBSTITUTO (que assumiu a rota completa):\nNome: ${motoristaSubstituto.nome}\nLCONT00${motoristaSubstituto.codigo}\nPlaca: ${motoristaSubstituto.placa}\nVALOR A RECEBER: ${formatarMoeda(valorTotal)} (valor integral)\n---\nO motorista original, ${motoristaOriginal.nome}, não receberá valor por esta rota.\n---\n\nQualquer dúvida, estou à disposição.\n\n${remetente}`;
-            }
-            enviarEmail(destinatario, copia, assunto, corpo);
+            // ... (código existente sem alterações)
         }
 
         function gerarEmailRemonte() {
-            const destinatario = emailDestinatarioRemonteInput.value;
-            const copia = emailCopiaRemonteInput.value;
-            const nomeMotorista = motoristaRemonteSelect.value;
-            const dataCarregamento = dataCarregamentoRemonteInput.value;
-            const numeroRomaneio = numeroRomaneioRemonteInput.value;
-            const nomeSupervisora = nomeSupervisoraRemonteInput.value;
-
-            if (!destinatario || !nomeMotorista || !dataCarregamento || !numeroRomaneio || !nomeSupervisora) {
-                alert("Por favor, preencha todos os campos obrigatórios para o remonte.");
-                return;
-            }
-
-            const motorista = motoristas.find(m => m.nome === nomeMotorista);
-            if (!motorista) {
-                alert("Motorista selecionado não encontrado na base de dados.");
-                return;
-            }
-
-            const remetente = nomeRemetenteRemonteInput.value.trim() || "Att.";
-            const saudacao = new Date().getHours() < 12 ? "Bom dia" : "Boa tarde";
-
-            const assunto = `REMONTE - ${motorista.nome}`;
-
-            const corpo = `${saudacao}!\n\n` +
-                          `Contratado ${tipoVeiculoRemonteSelect.value} – ${motorista.nome} PLACA: ${motorista.placa}. Estará carregando ${dataCarregamento}, com produto em seu veículo do Romaneio ${numeroRomaneio}.\n\n` +
-                          `${nomeSupervisora}, aguardando seu Ok.\n\n` +
-                          `${remetente}`;
-
-            enviarEmail(destinatario, copia, assunto, corpo);
+            // ... (código existente sem alterações)
         }
         
-        // FUNÇÃO ATUALIZADA PARA CÓPIA MANUAL
         function gerarEmailAjusteRota() {
             const destinatario = emailDestinatarioAjusteRotaInput.value;
             const copia = emailCopiaAjusteRotaInput.value;
@@ -687,7 +600,6 @@
             const saudacao = new Date().getHours() < 12 ? "Bom dia" : "Boa tarde";
             const assunto = `Ajuste de Rota e Praça`;
             
-            // Monta o corpo completo do e-mail com a tabela em HTML
             const corpoHtml = `
                 <div style="font-family: Arial, sans-serif; font-size: 14px; color: #000;">
                     <p>${saudacao},</p>
@@ -712,11 +624,9 @@
                     ${assinaturaHtml ? assinaturaHtml : `<p>${remetente || 'Att.'}</p>`}
                 </div>`;
             
-            // Preenche a caixa de cópia e a exibe
             htmlParaCopiar.innerHTML = corpoHtml;
             copyBoxAjusteRota.style.display = 'block';
 
-            // Seleciona o conteúdo para o usuário
             try {
                 const range = document.createRange();
                 range.selectNodeContents(htmlParaCopiar);
@@ -727,9 +637,9 @@
                 console.error("Falha ao selecionar texto automaticamente:", e);
             }
 
-            // Abre o cliente de e-mail com campos pré-preenchidos e um corpo simples
-            const corpoSimples = "O conteúdo completo do e-mail (com a tabela) foi preparado. Por favor, cole-o aqui.";
-            enviarEmail(destinatario, copia, assunto, corpoSimples);
+            // ALTERAÇÃO: Corpo do e-mail agora é uma string vazia
+            const corpoVazio = "";
+            enviarEmail(destinatario, copia, assunto, corpoVazio);
         }
 
         

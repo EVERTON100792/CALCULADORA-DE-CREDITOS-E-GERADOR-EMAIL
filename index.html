@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistema de Logística v25.0 [Automação Total]</title>
+    <title>Sistema de Logística v23.1 [Final Completo]</title>
     <style>
         /* --- ESTILOS GERAIS (CSS) - TEMA ESCURO --- */
         @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
@@ -132,6 +132,19 @@
             background-color: var(--success-color);
         }
         
+        .copy-box {
+            margin-top: 20px; padding: 15px; border: 2px dashed var(--primary-color);
+            border-radius: 8px; background-color: var(--bg-color);
+        }
+        .copy-box-content {
+            min-height: 150px; background-color: #fff; color: #1f1f38;
+            padding: 10px; border-radius: 6px; border: 1px solid var(--border-color);
+        }
+        .copy-box-instruction {
+            text-align: center; font-weight: 700; color: var(--primary-color);
+            margin-top: 10px; font-size: 1.1em;
+        }
+
         .rota-entry-row {
             display: grid;
             grid-template-columns: 1fr 1fr 1fr auto;
@@ -210,8 +223,12 @@
                 <div class="form-group"><label for="autorizacaoSaida">Nº Saída (Opcional):</label><input type="number" id="autorizacaoSaida" placeholder="Ex: 12345"></div>
                  <div class="form-group full-width"><label for="nomeRemetenteCredito">Seu Nome (para assinatura):</label><input type="text" id="nomeRemetenteCredito" placeholder="Seu nome completo"></div>
             </div>
-            <div class="preview-box">Valor do Crédito: <strong id="previewCredito">R$ 0,00</strong></div>
-            <button id="gerarCreditoBtn" class="btn btn-primary">Gerar Arquivo de Envio</button>
+            
+            <div class="preview-box">
+                Valor do Crédito: <strong id="previewCredito">R$ 0,00</strong>
+            </div>
+
+            <button id="gerarCreditoBtn" class="btn btn-primary">Preparar E-mail para Envio</button>
         </div>
 
         <div id="formPortaria" style="display: none;">
@@ -224,6 +241,7 @@
                 <input type="text" id="emailCopiaPortaria" placeholder="copia.portaria@exemplo.com">
             </div>
             <hr style="border-color: var(--border-color); margin: 15px 0;">
+
              <div class="form-group full-width">
                 <label for="motoristaPortaria">Selecione o Motorista:</label>
                 <input type="text" id="searchMotoristaPortaria" class="search-input" placeholder="Digite para buscar...">
@@ -233,7 +251,7 @@
                 <div class="form-group full-width"><label for="tipoVeiculo">Tipo de Veículo:</label><select id="tipoVeiculo"><option value="VAN">VAN</option><option value="FIORINO">FIORINO</option><option value="3/4">3/4</option><option value="TOCO">TOCO</option></select></div>
                  <div class="form-group full-width"><label for="nomeRemetentePortaria">Seu Nome (para assinatura):</label><input type="text" id="nomeRemetentePortaria" placeholder="Seu nome completo"></div>
             </div>
-            <button id="gerarPortariaBtn" class="btn btn-primary">Gerar Arquivo de Envio</button>
+            <button id="gerarPortariaBtn" class="btn btn-primary">Preparar E-mail para Envio</button>
         </div>
 
         <div id="formTransbordo" style="display: none;">
@@ -248,6 +266,7 @@
                     <label for="tipoIntegral">Pagamento Integral (sem entregas feitas)</label>
                 </div>
             </div>
+            
             <div class="form-grid">
                 <div class="form-group">
                     <label for="motoristaOriginal">Motorista Original (com problema):</label>
@@ -260,6 +279,7 @@
                     <select id="motoristaSubstituto"></select>
                 </div>
             </div>
+
             <div class="form-grid">
                 <div class="form-group">
                     <label for="valorTotalFrete">Valor Total do Frete (R$):</label>
@@ -270,6 +290,7 @@
                     <input type="number" id="numeroSaidaTransbordo" placeholder="Ex: 67890">
                 </div>
             </div>
+            
             <div id="camposProporcional" class="form-grid">
                  <div class="form-group">
                     <label for="totalEntregas">Nº Total de Entregas:</label>
@@ -280,15 +301,17 @@
                     <input type="number" id="entregasFeitas" placeholder="Ex: 3">
                 </div>
             </div>
+
             <div class="preview-box">
                 <div>Valor p/ Motorista Original: <strong id="previewValorOriginal">R$ 0,00</strong></div>
                 <div>Valor p/ Motorista Substituto: <strong id="previewValorSubstituto">R$ 0,00</strong></div>
             </div>
+
             <div class="form-group full-width">
                 <label for="nomeRemetenteTransbordo">Seu Nome (para assinatura):</label>
                 <input type="text" id="nomeRemetenteTransbordo" placeholder="Seu nome completo">
             </div>
-            <button id="gerarTransbordoBtn" class="btn btn-primary">Gerar Arquivo de Envio</button>
+            <button id="gerarTransbordoBtn" class="btn btn-primary">Preparar E-mail para Envio</button>
         </div>
         
         <div id="formRemonte" style="display: none;">
@@ -301,6 +324,7 @@
                 <input type="text" id="emailCopiaRemonte" placeholder="copia.remonte@exemplo.com">
             </div>
             <hr style="border-color: var(--border-color); margin: 15px 0;">
+
              <div class="form-group full-width">
                 <label for="motoristaRemonte">Selecione o Motorista:</label>
                 <input type="text" id="searchMotoristaRemonte" class="search-input" placeholder="Digite para buscar...">
@@ -313,7 +337,7 @@
                 <div class="form-group"><label for="nomeSupervisoraRemonte">Nome da Supervisora:</label><input type="text" id="nomeSupervisoraRemonte" value="Patrícia"></div>
                  <div class="form-group"><label for="nomeRemetenteRemonte">Seu Nome (assinatura):</label><input type="text" id="nomeRemetenteRemonte" placeholder="Seu nome completo"></div>
             </div>
-            <button id="gerarRemonteBtn" class="btn btn-primary">Gerar Arquivo de Envio</button>
+            <button id="gerarRemonteBtn" class="btn btn-primary">Preparar E-mail para Envio</button>
         </div>
 
         <div id="formAjusteRota" style="display: none;">
@@ -326,6 +350,7 @@
                 <input type="text" id="emailCopiaAjusteRota" placeholder="copia.rota@exemplo.com">
             </div>
             <hr style="border-color: var(--border-color); margin: 20px 0;">
+
             <label>Clientes para Ajuste:</label>
             <div id="linhasAjusteRota">
                 <div class="rota-entry-row">
@@ -335,12 +360,21 @@
                     <button class="btn-remover-linha" disabled>X</button>
                 </div>
             </div>
+
             <button id="addLinhaAjusteRotaBtn" class="btn btn-add-linha">+ Adicionar Cliente</button>
+            
             <div class="form-group full-width" style="margin-top: 20px;">
                 <label for="nomeRemetenteAjusteRota">Seu Nome (para assinatura):</label>
                 <input type="text" id="nomeRemetenteAjusteRota" placeholder="Seu nome completo">
             </div>
-            <button id="gerarAjusteRotaBtn" class="btn btn-primary">Gerar Arquivo de Envio</button>
+
+            <button id="gerarAjusteRotaBtn" class="btn btn-primary">Preparar E-mail para Envio</button>
+
+            <div id="copyBoxAjusteRota" class="copy-box" style="display: none;">
+                <label>Conteúdo do E-mail:</label>
+                <div id="htmlParaCopiar" contenteditable="true" class="copy-box-content"></div>
+                <p class="copy-box-instruction">O conteúdo acima já está selecionado. Pressione CTRL+C para copiar e depois cole (CTRL+V) no seu e-mail.</p>
+            </div>
         </div>
         
         <hr style="border-color: var(--border-color); margin: 35px 0 25px 0;">
@@ -350,6 +384,7 @@
             <div id="assinaturaEditavel" contenteditable="true"></div>
             <button id="copiarAssinaturaBtn" class="btn btn-primary btn-copy">Copiar Assinatura</button>
         </div>
+
     </div>
 
     <script>
@@ -397,6 +432,8 @@
         const emailCopiaAjusteRotaInput = document.getElementById('emailCopiaAjusteRota');
         const nomeRemetenteAjusteRotaInput = document.getElementById('nomeRemetenteAjusteRota');
         const gerarAjusteRotaBtn = document.getElementById('gerarAjusteRotaBtn');
+        const copyBoxAjusteRota = document.getElementById('copyBoxAjusteRota');
+        const htmlParaCopiar = document.getElementById('htmlParaCopiar');
         const addLinhaAjusteRotaBtn = document.getElementById('addLinhaAjusteRotaBtn');
         const linhasAjusteRotaContainer = document.getElementById('linhasAjusteRota');
         const previewCreditoSpan = document.getElementById('previewCredito');
@@ -413,30 +450,11 @@
             'entregasFeitas', 'nomeRemetenteTransbordo',
             'emailDestinatarioRemonte', 'emailCopiaRemonte', 'motoristaRemonte', 'tipoVeiculoRemonte', 
             'dataCarregamentoRemonte', 'numeroRomaneioRemonte', 'nomeSupervisoraRemonte', 'nomeRemetenteRemonte',
-            'emailDestinatarioAjusteRota', 'emailCopiaAjusteRota',
+            'emailDestinatarioAjusteRota', 'emailCopiaAjusteRota', 
             'nomeRemetenteAjusteRota'
         ];
         const radioNameToSave = 'tipoTransbordo';
 
-        // --- FUNÇÃO UNIVERSAL PARA GERAR ARQUIVO ---
-        function gerarArquivoParaAutomacao(dadosEmail) {
-            if (!dadosEmail || !dadosEmail.to || !dadosEmail.subject || !dadosEmail.body) {
-                alert("Erro: Dados insuficientes para gerar o arquivo de automação.");
-                return;
-            }
-            const blob = new Blob([JSON.stringify(dadosEmail, null, 2)], { type: 'application/json' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'dados_email.json';
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-            alert('Arquivo "dados_email.json" gerado com sucesso! Execute o robô do Power Automate para enviar.');
-        }
-
-        // --- FUNÇÕES DE COLETA DE DADOS E GERAÇÃO DE E-MAIL ---
         function formatarMoeda(valor) {
             return valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
         }
@@ -546,7 +564,16 @@
                 popularMotoristas(selectElement, filteredDrivers);
             });
         }
-        
+        function enviarEmail(destinatario, copia, assunto, corpo) {
+            const corpoFormatado = encodeURIComponent(corpo);
+            const assuntoFormatado = encodeURIComponent(assunto);
+            let mailtoLink = `mailto:${encodeURIComponent(destinatario)}?subject=${assuntoFormatado}&body=${corpoFormatado}`;
+            if (copia && copia.trim() !== '') {
+                mailtoLink += `&cc=${encodeURIComponent(copia)}`;
+            }
+            window.location.href = mailtoLink;
+        }
+
         function gerarEmailCredito() {
             const destinatario = emailDestinatarioInput.value;
             const copia = emailCopiaInput.value;
@@ -563,12 +590,9 @@
             const textoAutorizacao = autorizacao ? `Número da Saída: ${autorizacao}\n` : '';
             const saudacao = new Date().getHours() < 12 ? "Bom dia" : "Boa tarde";
             const remetente = nomeRemetenteCreditoInput.value.trim() || "Att.";
-            const assinaturaHtml = assinaturaEditavelDiv.innerHTML;
-            
             const assunto = `Lançamento de Crédito - Diferença de KM - ${motorista.nome}`;
-            const corpoHtml = `<div style="font-family: Arial, sans-serif; font-size: 14px; color: #000;"><p>${saudacao} Ana,</p><p>Por gentileza, lançar um crédito no valor de ${formatarMoeda(valorCredito)} para o motorista ${motorista.nome}, referente a diferença de ${kmInformado - kmPago} km ${motivoSelect.value}.</p><p>Seguem os dados para conferência:<br>Motorista: ${motorista.nome}<br>LCONT00${motorista.codigo}<br>Placa: ${motorista.placa}<br>${textoAutorizacao.replace('\n', '<br>')}</p><p>Qualquer dúvida, estou à disposição.</p><br>${assinaturaHtml ? assinaturaHtml : `<p>${remetente}</p>`}</div>`;
-            
-            gerarArquivoParaAutomacao({ to: destinatario, cc: copia, subject: assunto, body: corpoHtml });
+            const corpo = `${saudacao} Ana,\n\nPor gentileza, lançar um crédito no valor de ${formatarMoeda(valorCredito)} para o motorista ${motorista.nome}, referente a diferença de ${kmInformado - kmPago} km ${motivoSelect.value}.\n\nSeguem os dados para conferência:\n\nMotorista: ${motorista.nome}\nLCONT00${motorista.codigo}\nPlaca: ${motorista.placa}\n${textoAutorizacao}\nQualquer dúvida, estou à disposição.\n\n${remetente}`;
+            enviarEmail(destinatario, copia, assunto, corpo);
         }
 
         function gerarEmailPortaria() {
@@ -579,12 +603,9 @@
             const motorista = motoristas.find(m => m.nome === nomeMotorista);
             const remetente = nomeRemetentePortariaInput.value.trim() || "Att.";
             const saudacao = new Date().getHours() < 12 ? "Bom dia" : "Boa tarde";
-            const assinaturaHtml = assinaturaEditavelDiv.innerHTML;
-
             const assunto = `Liberação para Abastecimento - ${motorista.nome}`;
-            const corpoHtml = `<div style="font-family: Arial, sans-serif; font-size: 14px; color: #000;"><p>${saudacao},</p><p>Por gentileza, liberar o motorista ${nomeMotorista} para fazer o abastecimento do veículo ${tipoVeiculoSelect.value}, placa ${motorista.placa}.</p><p>Obrigado.</p><br>${assinaturaHtml ? assinaturaHtml : `<p>${remetente}</p>`}</div>`;
-            
-            gerarArquivoParaAutomacao({ to: destinatario, cc: copia, subject: assunto, body: corpoHtml });
+            const corpo = `${saudacao},\n\nPor gentileza, liberar o motorista ${nomeMotorista} para fazer o abastecimento do veículo ${tipoVeiculoSelect.value}, placa ${motorista.placa}.\n\nObrigado.\n\n${remetente}`;
+            enviarEmail(destinatario, copia, assunto, corpo);
         }
 
         function gerarEmailTransbordo() {
@@ -600,14 +621,11 @@
             const motoristaSubstituto = motoristas.find(m => m.nome === nomeSubstituto);
             const tipo = document.querySelector('input[name="tipoTransbordo"]:checked').value;
             const numeroSaida = numeroSaidaTransbordoInput.value.trim();
-            const textoNumeroSaida = numeroSaida ? `<p>Número da Saída de referência: ${numeroSaida}</p>` : '';
+            const textoNumeroSaida = numeroSaida ? `Número da Saída de referência: ${numeroSaida}\n` : '';
             const saudacao = new Date().getHours() < 12 ? "Bom dia" : "Boa tarde";
             const remetente = nomeRemetenteTransbordoInput.value.trim() || "Att.";
-            const assinaturaHtml = assinaturaEditavelDiv.innerHTML;
-
             let assunto = '';
-            let corpoHtml = '';
-            
+            let corpo = '';
             if (tipo === 'proporcional') {
                 const totalEntregas = parseInt(totalEntregasInput.value);
                 const entregasFeitas = parseInt(entregasFeitasInput.value);
@@ -617,40 +635,38 @@
                 const valorOriginal = (valorTotal / totalEntregas * entregasFeitas);
                 const valorSubstituto = valorTotal - valorOriginal;
                 assunto = `Lançamento Proporcional - Transbordo de Rota (Saída ${numeroSaida || 'N/A'})`;
-                corpoHtml = `<div style="font-family: Arial, sans-serif; font-size: 14px; color: #000;"><p>${saudacao} Ana,</p><p>Por favor, lançar o valor proporcional referente ao transbordo feito entre os motoristas abaixo.</p>${textoNumeroSaida}
-                <p><b>MOTORISTA ORIGINAL (com problema):</b><br>Nome: ${motoristaOriginal.nome}<br>LCONT00${motoristaOriginal.codigo}<br>Placa: ${motoristaOriginal.placa}<br><b>VALOR A RECEBER: ${formatarMoeda(valorOriginal)}</b> (referente a ${entregasFeitas} de ${totalEntregas} entregas)</p>
-                <p><b>MOTORISTA SUBSTITUTO (que assumiu):</b><br>Nome: ${motoristaSubstituto.nome}<br>LCONT00${motoristaSubstituto.codigo}<br>Placa: ${motoristaSubstituto.placa}<br><b>VALOR A RECEBER: ${formatarMoeda(valorSubstituto)}</b> (referente às ${totalEntregas - entregasFeitas} entregas restantes)</p>
-                <p>Qualquer dúvida, estou à disposição.</p><br>${assinaturaHtml ? assinaturaHtml : `<p>${remetente}</p>`}</div>`;
+                corpo = `${saudacao} Ana,\n\nPor favor, lançar o valor proporcional referente ao transbordo feito entre os motoristas abaixo.\n${textoNumeroSaida}\n---\nMOTORISTA ORIGINAL (com problema):\nNome: ${motoristaOriginal.nome}\nLCONT00${motoristaOriginal.codigo}\nPlaca: ${motoristaOriginal.placa}\nVALOR A RECEBER: ${formatarMoeda(valorOriginal)} (referente a ${entregasFeitas} de ${totalEntregas} entregas)\n---\nMOTORISTA SUBSTITUTO (que assumiu):\nNome: ${motoristaSubstituto.nome}\nLCONT00${motoristaSubstituto.codigo}\nPlaca: ${motoristaSubstituto.placa}\nVALOR A RECEBER: ${formatarMoeda(valorSubstituto)} (referente às ${totalEntregas - entregasFeitas} entregas restantes)\n---\n\nQualquer dúvida, estou à disposição.\n\n${remetente}`;
             } else { // Integral
                 assunto = `Lançamento Integral - Transbordo de Rota (Saída ${numeroSaida || 'N/A'})`;
-                corpoHtml = `<div style="font-family: Arial, sans-serif; font-size: 14px; color: #000;"><p>${saudacao} Ana,</p><p>Por favor, lançar o valor integral do frete para o motorista substituto, conforme detalhado abaixo, devido a um problema com o veículo do motorista original antes do início das entregas.</p>${textoNumeroSaida}
-                <p><b>MOTORISTA SUBSTITUTO (que assumiu a rota completa):</b><br>Nome: ${motoristaSubstituto.nome}<br>LCONT00${motoristaSubstituto.codigo}<br>Placa: ${motoristaSubstituto.placa}<br><b>VALOR A RECEBER: ${formatarMoeda(valorTotal)}</b> (valor integral)</p>
-                <p>O motorista original, ${motoristaOriginal.nome}, não receberá valor por esta rota.</p>
-                <p>Qualquer dúvida, estou à disposição.</p><br>${assinaturaHtml ? assinaturaHtml : `<p>${remetente}</p>`}</div>`;
+                corpo = `${saudacao} Ana,\n\nPor favor, lançar o valor integral do frete para o motorista substituto, conforme detalhado abaixo, devido a um problema com o veículo do motorista original antes do início das entregas.\n${textoNumeroSaida}\n---\nMOTORISTA SUBSTITUTO (que assumiu a rota completa):\nNome: ${motoristaSubstituto.nome}\nLCONT00${motoristaSubstituto.codigo}\nPlaca: ${motoristaSubstituto.placa}\nVALOR A RECEBER: ${formatarMoeda(valorTotal)} (valor integral)\n---\nO motorista original, ${motoristaOriginal.nome}, não receberá valor por esta rota.\n---\n\nQualquer dúvida, estou à disposição.\n\n${remetente}`;
             }
-            gerarArquivoParaAutomacao({ to: destinatario, cc: copia, subject: assunto, body: corpoHtml });
+            enviarEmail(destinatario, copia, assunto, corpo);
         }
 
         function gerarEmailRemonte() {
             const destinatario = emailDestinatarioRemonteInput.value;
             const copia = emailCopiaRemonteInput.value;
             const nomeMotorista = motoristaRemonteSelect.value;
-            if (!destinatario || !nomeMotorista) { alert("Preencha o e-mail do destinatário e selecione um motorista."); return; }
-            const motorista = motoristas.find(m => m.nome === nomeMotorista);
             const dataCarregamento = dataCarregamentoRemonteInput.value;
             const numeroRomaneio = numeroRomaneioRemonteInput.value;
             const nomeSupervisora = nomeSupervisoraRemonteInput.value;
-            if (!dataCarregamento || !numeroRomaneio || !nomeSupervisora) {
-                alert("Por favor, preencha todos os campos obrigatórios para o remonte."); return;
+            if (!destinatario || !nomeMotorista || !dataCarregamento || !numeroRomaneio || !nomeSupervisora) {
+                alert("Por favor, preencha todos os campos obrigatórios para o remonte.");
+                return;
+            }
+            const motorista = motoristas.find(m => m.nome === nomeMotorista);
+            if (!motorista) {
+                alert("Motorista selecionado não encontrado na base de dados.");
+                return;
             }
             const remetente = nomeRemetenteRemonteInput.value.trim() || "Att.";
             const saudacao = new Date().getHours() < 12 ? "Bom dia" : "Boa tarde";
-            const assinaturaHtml = assinaturaEditavelDiv.innerHTML;
             const assunto = `REMONTE - ${motorista.nome}`;
-            const corpoHtml = `<div style="font-family: Arial, sans-serif; font-size: 14px; color: #000;"><p>${saudacao}!</p>
-            <p>Contratado ${tipoVeiculoRemonteSelect.value} – ${motorista.nome} PLACA: ${motorista.placa}. Estará carregando ${dataCarregamento}, com produto em seu veículo do Romaneio ${numeroRomaneio}.</p>
-            <p>${nomeSupervisora}, aguardando seu Ok.</p><br>${assinaturaHtml ? assinaturaHtml : `<p>${remetente}</p>`}</div>`;
-            gerarArquivoParaAutomacao({ to: destinatario, cc: copia, subject: assunto, body: corpoHtml });
+            const corpo = `${saudacao}!\n\n` +
+                          `Contratado ${tipoVeiculoRemonteSelect.value} – ${motorista.nome} PLACA: ${motorista.placa}. Estará carregando ${dataCarregamento}, com produto em seu veículo do Romaneio ${numeroRomaneio}.\n\n` +
+                          `${nomeSupervisora}, aguardando seu Ok.\n\n` +
+                          `${remetente}`;
+            enviarEmail(destinatario, copia, assunto, corpo);
         }
         
         function gerarEmailAjusteRota() {
@@ -673,16 +689,27 @@
                 }
             });
             if (tabelaLinhasHtml === '') {
-                alert("Nenhuma linha de cliente foi preenchida corretamente.");
+                alert("Nenhuma linha de cliente foi preenchida corretamente. Adicione pelo menos um cliente, rota e praça.");
                 return;
             }
             const saudacao = new Date().getHours() < 12 ? "Bom dia" : "Boa tarde";
             const assunto = `Ajuste de Rota e Praça`;
             const corpoHtml = `<div style="font-family: Arial, sans-serif; font-size: 14px; color: #000;"><p>${saudacao},</p><p>Por favor, ajustar rota e praça dos clientes abaixo:</p><table style="border-collapse: collapse; width: auto; font-family: Arial, sans-serif; font-size: 14px; border: 1px solid #ccc;"><thead><tr><th style="border: 1px solid #ccc; padding: 8px; background-color: #f2f2f2; text-align: left;">Cliente</th><th style="border: 1px solid #ccc; padding: 8px; background-color: #f2f2f2; text-align: left;">Rota</th><th style="border: 1px solid #ccc; padding: 8px; background-color: #f2f2f2; text-align: left;">Praça</th></tr></thead><tbody>${tabelaLinhasHtml}</tbody></table><br>${assinaturaHtml ? assinaturaHtml : `<p>${remetente || 'Att.'}</p>`}</div>`;
-            
-            gerarArquivoParaAutomacao({ to: destinatario, cc: copia, subject: assunto, body: corpoHtml });
+            htmlParaCopiar.innerHTML = corpoHtml;
+            copyBoxAjusteRota.style.display = 'block';
+            try {
+                const range = document.createRange();
+                range.selectNodeContents(htmlParaCopiar);
+                const sel = window.getSelection();
+                sel.removeAllRanges();
+                sel.addRange(range);
+            } catch (e) {
+                console.error("Falha ao selecionar texto automaticamente:", e);
+            }
+            const corpoVazio = "";
+            enviarEmail(destinatario, copia, assunto, corpoVazio);
         }
-
+        
         document.addEventListener('DOMContentLoaded', () => {
             processarListaMotoristas();
             popularMotoristas(motoristaCreditoSelect);
@@ -709,7 +736,6 @@
             radiosTransbordo.forEach(radio => radio.addEventListener('change', atualizarPreviewTransbordo));
             atualizarPreviewCredito();
             atualizarPreviewTransbordo();
-            
             addLinhaAjusteRotaBtn.addEventListener('click', () => {
                 const primeiraLinha = linhasAjusteRotaContainer.querySelector('.rota-entry-row');
                 const novaLinha = primeiraLinha.cloneNode(true);
@@ -771,6 +797,7 @@
                 document.querySelectorAll('.btn-mode').forEach(b => b.classList.remove('active'));
                 modos[btnId].style.display = 'block';
                 document.getElementById(btnId).classList.add('active');
+                copyBoxAjusteRota.style.display = 'none';
                 if (btnId === 'modePortariaBtn' || btnId === 'modeRemonteBtn' || btnId === 'modeAjusteRotaBtn') {
                     generalEmailFieldsDiv.style.display = 'none';
                 } else {

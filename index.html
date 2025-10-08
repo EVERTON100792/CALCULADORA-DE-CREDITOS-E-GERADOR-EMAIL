@@ -500,7 +500,6 @@
                 if (checkedRadio) data[radioNameToSave] = checkedRadio.value;
                 data.assinaturaRichText = assinaturaEditavelDiv.innerHTML;
 
-                // NOVO: Salvar as linhas de ajuste de rota
                 const ajusteLinhasData = [];
                 const linhas = linhasAjusteRotaContainer.querySelectorAll('.rota-entry-row');
                 linhas.forEach(linha => {
@@ -510,6 +509,12 @@
                     ajusteLinhasData.push({ cliente, rota, praca });
                 });
                 data.ajusteRotaLinhas = ajusteLinhasData;
+
+                // NOVO: Salvar o ID da aba ativa
+                const activeModeBtn = document.querySelector('.btn-mode.active');
+                if (activeModeBtn) {
+                    data.activeTabId = activeModeBtn.id;
+                }
 
                 localStorage.setItem('logisticaAppData', JSON.stringify(data));
             } catch (error) { console.error("Erro ao salvar dados:", error); }
@@ -536,9 +541,8 @@
                     assinaturaEditavelDiv.innerHTML = data.assinaturaRichText;
                 }
 
-                // NOVO: Carregar e recriar as linhas de ajuste de rota
                 if (data.ajusteRotaLinhas && data.ajusteRotaLinhas.length > 0) {
-                    linhasAjusteRotaContainer.innerHTML = ''; // Limpa as linhas existentes
+                    linhasAjusteRotaContainer.innerHTML = ''; 
                     data.ajusteRotaLinhas.forEach(linhaData => {
                         const novaLinha = document.createElement('div');
                         novaLinha.className = 'rota-entry-row';
@@ -551,7 +555,15 @@
                         linhasAjusteRotaContainer.appendChild(novaLinha);
                     });
                 }
-                updateRemoveButtonsState(); // Atualiza o estado dos botões de remover
+                updateRemoveButtonsState();
+
+                // NOVO: Restaurar a aba ativa
+                if (data.activeTabId) {
+                    const btnToActivate = document.getElementById(data.activeTabId);
+                    if (btnToActivate) {
+                        btnToActivate.click();
+                    }
+                }
 
             } catch (error) {
                 console.error("Erro ao carregar dados:", error);
@@ -740,13 +752,11 @@
             enviarEmail(destinatario, copia, assunto, corpoVazio);
         }
 
-        // NOVO: Função para atualizar o estado (ativado/desativado) dos botões de remover linha
         function updateRemoveButtonsState() {
             const allRows = linhasAjusteRotaContainer.querySelectorAll('.rota-entry-row');
-            allRows.forEach((row, index) => {
+            allRows.forEach((row) => {
                 const btn = row.querySelector('.btn-remover-linha');
                 if (btn) {
-                    // O botão é desativado apenas se houver uma única linha
                     btn.disabled = (allRows.length === 1);
                 }
             });
@@ -760,7 +770,7 @@
             popularMotoristas(motoristaSubstitutoSelect);
             popularMotoristas(motoristaRemonteSelect);
             
-            loadData(); // Carrega todos os dados, incluindo as linhas de ajuste
+            loadData(); 
             
             linkSearchToSelect('searchMotoristaCredito', 'motoristaCredito');
             linkSearchToSelect('searchMotoristaPortaria', 'motoristaPortaria');
@@ -794,8 +804,8 @@
                     <button class="btn-remover-linha">X</button>
                 `;
                 linhasAjusteRotaContainer.appendChild(novaLinha);
-                updateRemoveButtonsState(); // MODIFICADO: Chama a função para garantir que o estado dos botões esteja correto
-                saveData(); // Salva os dados após adicionar uma nova linha em branco
+                updateRemoveButtonsState(); 
+                saveData(); 
             });
             
             linhasAjusteRotaContainer.addEventListener('click', (e) => {
@@ -803,8 +813,8 @@
                     const linhaParaRemover = e.target.closest('.rota-entry-row');
                     if (linhasAjusteRotaContainer.children.length > 1) {
                         linhaParaRemover.remove();
-                        updateRemoveButtonsState(); // MODIFICADO: Atualiza o estado dos botões após a remoção
-                        saveData(); // Salva os dados após remover uma linha
+                        updateRemoveButtonsState(); 
+                        saveData(); 
                     }
                 }
             });
@@ -859,6 +869,7 @@
                 } else {
                     generalEmailFieldsDiv.style.display = 'block';
                 }
+                saveData(); // MODIFICADO: Salva os dados toda vez que uma aba é clicada
             });
         });
         radiosTransbordo.forEach(radio => {

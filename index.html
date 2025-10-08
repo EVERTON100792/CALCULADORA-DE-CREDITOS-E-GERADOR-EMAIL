@@ -183,6 +183,100 @@
         .preview-box strong { color: var(--primary-color); font-weight: 700; }
         .preview-box div { margin-top: 5px; }
 
+        /* --- INÍCIO: ESTILOS PARA RÁDIO BUTTONS MODERNOS --- */
+
+        .radio-group-moderno {
+            display: grid;
+            grid-template-columns: 1fr; /* Mude para 1fr 1fr se quiser lado a lado */
+            gap: 12px;
+            margin-top: 5px;
+        }
+
+        .radio-option {
+            background-color: var(--input-bg-color);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 15px;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            transition: border-color 0.3s, background-color 0.3s, box-shadow 0.3s;
+            position: relative; /* Necessário para o input escondido */
+        }
+
+        .radio-option:hover {
+            border-color: var(--primary-color);
+            background-color: var(--preview-bg-color);
+        }
+
+        /* Esconde o input de rádio original */
+        .radio-option input[type="radio"] {
+            position: absolute;
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        /* O círculo customizado */
+        .custom-radio {
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--label-color);
+            border-radius: 50%;
+            margin-right: 15px;
+            flex-shrink: 0; /* Impede que o círculo encolha */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: border-color 0.3s;
+        }
+
+        /* O ponto interior do círculo (aparece quando selecionado) */
+        .custom-radio::after {
+            content: '';
+            width: 10px;
+            height: 10px;
+            background-color: var(--primary-color);
+            border-radius: 50%;
+            transform: scale(0);
+            transition: transform 0.2s ease-in-out;
+        }
+
+        .option-text {
+            display: flex;
+            flex-direction: column;
+            color: var(--text-color);
+        }
+
+        .option-text strong {
+            font-weight: 500;
+            color: inherit;
+        }
+
+        .option-text small {
+            font-size: 0.85em;
+            color: var(--label-color);
+            line-height: 1.4;
+        }
+
+        /* Estilos quando a opção está selecionada */
+        .radio-option input[type="radio"]:checked + .custom-radio {
+            border-color: var(--primary-color);
+        }
+
+        .radio-option input[type="radio"]:checked + .custom-radio::after {
+            transform: scale(1);
+        }
+
+        .radio-option input[type="radio"]:checked ~ .option-text strong {
+            color: var(--primary-color);
+        }
+
+        .radio-option input[type="radio"]:focus-visible + .custom-radio {
+             box-shadow: 0 0 8px rgba(74, 144, 226, 0.4);
+        }
+
+        /* --- FIM: ESTILOS PARA RÁDIO BUTTONS MODERNOS --- */
     </style>
 </head>
 <body>
@@ -255,15 +349,25 @@
         </div>
 
         <div id="formTransbordo" style="display: none;">
-            <div class="form-group full-width radio-group">
+            <div class="form-group full-width">
                 <label>Tipo de Transbordo:</label>
-                <div>
-                    <input type="radio" id="tipoProporcional" name="tipoTransbordo" value="proporcional" checked>
-                    <label for="tipoProporcional">Pagamento Proporcional (entregas parciais)</label>
-                </div>
-                <div>
-                    <input type="radio" id="tipoIntegral" name="tipoTransbordo" value="integral">
-                    <label for="tipoIntegral">Pagamento Integral (sem entregas feitas)</label>
+                <div class="radio-group-moderno">
+                    <label class="radio-option">
+                        <input type="radio" id="tipoProporcional" name="tipoTransbordo" value="proporcional" checked>
+                        <span class="custom-radio"></span>
+                        <span class="option-text">
+                            <strong>Pagamento Proporcional</strong>
+                            <small>Motorista original recebe pelas entregas feitas.</small>
+                        </span>
+                    </label>
+                    <label class="radio-option">
+                        <input type="radio" id="tipoIntegral" name="tipoTransbordo" value="integral">
+                        <span class="custom-radio"></span>
+                        <span class="option-text">
+                            <strong>Pagamento Integral</strong>
+                            <small>Motorista substituto recebe o valor total.</small>
+                        </span>
+                    </label>
                 </div>
             </div>
             
@@ -510,7 +614,6 @@
                 });
                 data.ajusteRotaLinhas = ajusteLinhasData;
 
-                // NOVO: Salvar o ID da aba ativa
                 const activeModeBtn = document.querySelector('.btn-mode.active');
                 if (activeModeBtn) {
                     data.activeTabId = activeModeBtn.id;
@@ -557,7 +660,6 @@
                 }
                 updateRemoveButtonsState();
 
-                // NOVO: Restaurar a aba ativa
                 if (data.activeTabId) {
                     const btnToActivate = document.getElementById(data.activeTabId);
                     if (btnToActivate) {
@@ -869,7 +971,7 @@
                 } else {
                     generalEmailFieldsDiv.style.display = 'block';
                 }
-                saveData(); // MODIFICADO: Salva os dados toda vez que uma aba é clicada
+                saveData();
             });
         });
         radiosTransbordo.forEach(radio => {

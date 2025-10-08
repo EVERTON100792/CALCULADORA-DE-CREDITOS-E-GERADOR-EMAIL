@@ -745,11 +745,11 @@
             });
         });
         
-        gerarCreditoBtn.addEventListener('click', gerarEmailCredito);
-        gerarPortariaBtn.addEventListener('click', gerarEmailPortaria);
-        gerarTransbordoBtn.addEventListener('click', gerarEmailTransbordo);
-        gerarRemonteBtn.addEventListener('click', gerarEmailRemonte);
-        gerarAjusteRotaBtn.addEventListener('click', gerarArquivoParaAutomacao); // CORRIGIDO
+        gerarAjusteRotaBtn.addEventListener('click', gerarArquivoParaAutomacao);
+        gerarAjusteRotaBtn.addEventListener('click', gerarArquivoParaAutomacao);
+        gerarAjusteRotaBtn.addEventListener('click', gerarArquivoParaAutomacao);
+        gerarAjusteRotaBtn.addEventListener('click', gerarArquivoParaAutomacao);
+        gerarAjusteRotaBtn.addEventListener('click', gerarArquivoParaAutomacao);// CORRIGIDO
         
         copiarAssinaturaBtn.addEventListener('click', async () => {
             const htmlConteudo = assinaturaEditavelDiv.innerHTML;
@@ -800,6 +800,59 @@
                 camposProporcionalDiv.style.display = radio.value === 'proporcional' ? 'grid' : 'none';
             });
         });
+
+        function gerarArquivoParaAutomacao() {
+            const destinatario = document.getElementById('emailDestinatarioAjusteRota').value;
+            const copia = document.getElementById('emailCopiaAjusteRota').value;
+            const remetente = document.getElementById('nomeRemetenteAjusteRota').value.trim();
+            const assinaturaHtml = document.getElementById('assinaturaEditavel').innerHTML;
+
+            if (!destinatario) {
+                alert("Por favor, preencha o destinatário.");
+                return;
+            }
+
+            let tabelaLinhasHtml = '';
+            const linhas = document.querySelectorAll('#linhasAjusteRota .rota-entry-row');
+            linhas.forEach(linha => {
+                const cliente = linha.querySelector('.cliente-input').value.trim();
+                const rota = linha.querySelector('.rota-input').value.trim();
+                const praca = linha.querySelector('.praca-input').value.trim();
+                if (cliente && rota && praca) {
+                    tabelaLinhasHtml += `<tr><td style="border: 1px solid #ccc; padding: 8px;">${cliente}</td><td style="border: 1px solid #ccc; padding: 8px;">${rota}</td><td style="border: 1px solid #ccc; padding: 8px;">${praca}</td></tr>`;
+                }
+            });
+
+            if (tabelaLinhasHtml === '') {
+                alert("Nenhuma linha de cliente foi preenchida corretamente. Adicione pelo menos um cliente, rota e praça.");
+                return;
+            }
+
+            const saudacao = new Date().getHours() < 12 ? "Bom dia" : "Boa tarde";
+            const assunto = `Ajuste de Rota e Praça`;
+            
+            const corpoHtml = `<div style="font-family: Arial, sans-serif; font-size: 14px; color: #000;"><p>${saudacao},</p><p>Por favor, ajustar rota e praça dos clientes abaixo:</p><table style="border-collapse: collapse; width: auto; font-family: Arial, sans-serif; font-size: 14px; border: 1px solid #ccc;"><thead><tr><th style="border: 1px solid #ccc; padding: 8px; background-color: #f2f2f2; text-align: left;">Cliente</th><th style="border: 1px solid #ccc; padding: 8px; background-color: #f2f2f2; text-align: left;">Rota</th><th style="border: 1px solid #ccc; padding: 8px; background-color: #f2f2f2; text-align: left;">Praça</th></tr></thead><tbody>${tabelaLinhasHtml}</tbody></table><br>${assinaturaHtml ? assinaturaHtml : `<p>${remetente || 'Att.'}</p>`}</div>`;
+
+            const dadosEmail = {
+                to: destinatario,
+                cc: copia,
+                subject: assunto,
+                body: corpoHtml
+            };
+
+            const blob = new Blob([JSON.stringify(dadosEmail, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'dados_email.json';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            alert('Arquivo "dados_email.json" gerado com sucesso! Execute o robô do Power Automate para enviar.');
+        }
     </script>
 </body>
 </html>
+

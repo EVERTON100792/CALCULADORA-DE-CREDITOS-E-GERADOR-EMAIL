@@ -499,6 +499,18 @@
                 const checkedRadio = document.querySelector(`input[name="${radioNameToSave}"]:checked`);
                 if (checkedRadio) data[radioNameToSave] = checkedRadio.value;
                 data.assinaturaRichText = assinaturaEditavelDiv.innerHTML;
+
+                // NOVO: Salvar as linhas de ajuste de rota
+                const ajusteLinhasData = [];
+                const linhas = linhasAjusteRotaContainer.querySelectorAll('.rota-entry-row');
+                linhas.forEach(linha => {
+                    const cliente = linha.querySelector('.cliente-input').value;
+                    const rota = linha.querySelector('.rota-input').value;
+                    const praca = linha.querySelector('.praca-input').value;
+                    ajusteLinhasData.push({ cliente, rota, praca });
+                });
+                data.ajusteRotaLinhas = ajusteLinhasData;
+
                 localStorage.setItem('logisticaAppData', JSON.stringify(data));
             } catch (error) { console.error("Erro ao salvar dados:", error); }
         }
@@ -523,6 +535,24 @@
                 if(data.assinaturaRichText) {
                     assinaturaEditavelDiv.innerHTML = data.assinaturaRichText;
                 }
+
+                // NOVO: Carregar e recriar as linhas de ajuste de rota
+                if (data.ajusteRotaLinhas && data.ajusteRotaLinhas.length > 0) {
+                    linhasAjusteRotaContainer.innerHTML = ''; // Limpa as linhas existentes
+                    data.ajusteRotaLinhas.forEach(linhaData => {
+                        const novaLinha = document.createElement('div');
+                        novaLinha.className = 'rota-entry-row';
+                        novaLinha.innerHTML = `
+                            <input type="text" class="cliente-input" placeholder="Cliente" value="${linhaData.cliente || ''}">
+                            <input type="text" class="rota-input" placeholder="Rota" value="${linhaData.rota || ''}">
+                            <input type="text" class="praca-input" placeholder="Praça" value="${linhaData.praca || ''}">
+                            <button class="btn-remover-linha">X</button>
+                        `;
+                        linhasAjusteRotaContainer.appendChild(novaLinha);
+                    });
+                }
+                updateRemoveButtonsState(); // Atualiza o estado dos botões de remover
+
             } catch (error) {
                 console.error("Erro ao carregar dados:", error);
                 localStorage.removeItem('logisticaAppData');
@@ -709,6 +739,18 @@
             const corpoVazio = "";
             enviarEmail(destinatario, copia, assunto, corpoVazio);
         }
+
+        // NOVO: Função para atualizar o estado (ativado/desativado) dos botões de remover linha
+        function updateRemoveButtonsState() {
+            const allRows = linhasAjusteRotaContainer.querySelectorAll('.rota-entry-row');
+            allRows.forEach((row, index) => {
+                const btn = row.querySelector('.btn-remover-linha');
+                if (btn) {
+                    // O botão é desativado apenas se houver uma única linha
+                    btn.disabled = (allRows.length === 1);
+                }
+            });
+        }
         
         document.addEventListener('DOMContentLoaded', () => {
             processarListaMotoristas();
@@ -717,16 +759,20 @@
             popularMotoristas(motoristaOriginalSelect);
             popularMotoristas(motoristaSubstitutoSelect);
             popularMotoristas(motoristaRemonteSelect);
-            loadData();
+            
+            loadData(); // Carrega todos os dados, incluindo as linhas de ajuste
+            
             linkSearchToSelect('searchMotoristaCredito', 'motoristaCredito');
             linkSearchToSelect('searchMotoristaPortaria', 'motoristaPortaria');
             linkSearchToSelect('searchMotoristaOriginal', 'motoristaOriginal');
             linkSearchToSelect('searchMotoristaSubstituto', 'motoristaSubstituto');
             linkSearchToSelect('searchMotoristaRemonte', 'motoristaRemonte');
+            
             const container = document.querySelector('.container');
             container.addEventListener('change', saveData);
             container.addEventListener('keyup', saveData);
             assinaturaEditavelDiv.addEventListener('input', saveData);
+            
             kmInformadoInput.addEventListener('input', atualizarPreviewCredito);
             kmPagoInput.addEventListener('input', atualizarPreviewCredito);
             valorKmInput.addEventListener('input', atualizarPreviewCredito);
@@ -734,21 +780,31 @@
             totalEntregasInput.addEventListener('input', atualizarPreviewTransbordo);
             entregasFeitasInput.addEventListener('input', atualizarPreviewTransbordo);
             radiosTransbordo.forEach(radio => radio.addEventListener('change', atualizarPreviewTransbordo));
+            
             atualizarPreviewCredito();
             atualizarPreviewTransbordo();
+            
             addLinhaAjusteRotaBtn.addEventListener('click', () => {
-                const primeiraLinha = linhasAjusteRotaContainer.querySelector('.rota-entry-row');
-                const novaLinha = primeiraLinha.cloneNode(true);
-                novaLinha.querySelectorAll('input').forEach(input => input.value = '');
-                const btnRemover = novaLinha.querySelector('.btn-remover-linha');
-                btnRemover.disabled = false;
+                const novaLinha = document.createElement('div');
+                novaLinha.className = 'rota-entry-row';
+                novaLinha.innerHTML = `
+                    <input type="text" class="cliente-input" placeholder="Cliente">
+                    <input type="text" class="rota-input" placeholder="Rota">
+                    <input type="text" class="praca-input" placeholder="Praça">
+                    <button class="btn-remover-linha">X</button>
+                `;
                 linhasAjusteRotaContainer.appendChild(novaLinha);
+                updateRemoveButtonsState(); // MODIFICADO: Chama a função para garantir que o estado dos botões esteja correto
+                saveData(); // Salva os dados após adicionar uma nova linha em branco
             });
+            
             linhasAjusteRotaContainer.addEventListener('click', (e) => {
                 if (e.target && e.target.classList.contains('btn-remover-linha')) {
                     const linhaParaRemover = e.target.closest('.rota-entry-row');
                     if (linhasAjusteRotaContainer.children.length > 1) {
                         linhaParaRemover.remove();
+                        updateRemoveButtonsState(); // MODIFICADO: Atualiza o estado dos botões após a remoção
+                        saveData(); // Salva os dados após remover uma linha
                     }
                 }
             });

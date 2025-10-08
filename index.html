@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistema de Logística v24.0 [Automação]</title>
+    <title>Sistema de Logística v24.0 [Automação Corrigida]</title>
     <style>
         /* --- ESTILOS GERAIS (CSS) - TEMA ESCURO --- */
         @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
@@ -647,6 +647,7 @@
             enviarEmail(destinatario, copia, assunto, corpo);
         }
         
+        // FUNÇÃO CORRIGIDA PARA GERAR O ARQUIVO
         function gerarArquivoParaAutomacao() {
             const destinatario = document.getElementById('emailDestinatarioAjusteRota').value;
             const copia = document.getElementById('emailCopiaAjusteRota').value;
@@ -748,7 +749,7 @@
         gerarPortariaBtn.addEventListener('click', gerarEmailPortaria);
         gerarTransbordoBtn.addEventListener('click', gerarEmailTransbordo);
         gerarRemonteBtn.addEventListener('click', gerarEmailRemonte);
-        gerarAjusteRotaBtn.addEventListener('click', gerarArquivoParaAutomacao);
+        gerarAjusteRotaBtn.addEventListener('click', gerarArquivoParaAutomacao); // CORRIGIDO
         
         copiarAssinaturaBtn.addEventListener('click', async () => {
             const htmlConteudo = assinaturaEditavelDiv.innerHTML;

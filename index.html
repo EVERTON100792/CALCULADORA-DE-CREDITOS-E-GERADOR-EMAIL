@@ -96,6 +96,11 @@
         .btn-primary:hover { background-color: var(--primary-hover-color); }
         .btn:active { transform: translateY(1px); }
         
+        /* NOVO: Estilo para botão copiado */
+        .btn-primary.copied {
+            background-color: var(--success-color);
+        }
+
         .mode-switcher { display: flex; gap: 10px; margin-bottom: 25px; flex-wrap: wrap; }
         .btn-mode {
             flex-grow: 1; padding: 12px;
@@ -466,7 +471,7 @@
         <div id="globalCopyBox" class="copy-box" style="display: none;">
             <label>Conteúdo do E-mail:</label>
             <div id="emailBodyParaCopiar" contenteditable="true" class="copy-box-content"></div>
-            <p class="copy-box-instruction">O conteúdo acima já está selecionado. Pressione CTRL+C para copiar e cole (CTRL+V) no seu e-mail.</p>
+            <p class="copy-box-instruction">Conteúdo copiado para a área de transferência! Cole (CTRL+V) no seu e-mail.</p>
         </div>
         
         <hr style="border-color: var(--border-color); margin: 35px 0 25px 0;">
@@ -701,18 +706,35 @@
             window.location.href = mailtoLink;
         }
 
-        function showCopyBoxAndSelect(htmlContent) {
+        // --- FUNÇÃO MODIFICADA ---
+        // Agora ela é "async" e recebe o botão que foi clicado.
+        async function showCopyBoxAndCopyToClipboard(htmlContent, clickedButton) {
             emailBodyParaCopiar.innerHTML = htmlContent;
             globalCopyBox.style.display = 'block';
+
+            // Tenta copiar o conteúdo HTML para a área de transferência.
             try {
-                const range = document.createRange();
-                range.selectNodeContents(emailBodyParaCopiar);
-                const sel = window.getSelection();
-                sel.removeAllRanges();
-                sel.addRange(range);
-                emailBodyParaCopiar.focus();
-            } catch (e) {
-                console.error("Falha ao selecionar texto automaticamente:", e);
+                const blob = new Blob([htmlContent], { type: 'text/html' });
+                // Cria um item de clipboard que contém tanto a versão HTML (rica) quanto a versão de texto puro.
+                const clipboardItem = new ClipboardItem({ 
+                    'text/html': blob,
+                    'text/plain': emailBodyParaCopiar.innerText
+                });
+                await navigator.clipboard.write([clipboardItem]);
+                
+                // Dá um feedback visual no botão que foi clicado.
+                const originalText = clickedButton.textContent;
+                clickedButton.textContent = 'E-mail Copiado!';
+                clickedButton.classList.add('copied');
+                setTimeout(() => {
+                    clickedButton.textContent = originalText;
+                    clickedButton.classList.remove('copied');
+                }, 2000);
+
+            } catch (err) {
+                console.error('Falha ao copiar automaticamente: ', err);
+                // Se a cópia automática falhar, o usuário ainda pode copiar manualmente.
+                document.getElementById('copy-box-instruction').textContent = 'Falha ao copiar! Pressione CTRL+C para copiar e cole (CTRL+V).';
             }
         }
 
@@ -725,7 +747,9 @@
             return assinaturaHtml;
         }
 
-        function gerarEmailCredito() {
+        // --- FUNÇÕES DE GERAÇÃO DE E-MAIL MODIFICADAS ---
+        // Adicionado "async" e o botão é passado para a função de cópia.
+        async function gerarEmailCredito() {
             const destinatario = emailDestinatarioInput.value;
             const copia = emailCopiaInput.value;
             const nomeMotorista = motoristaCreditoSelect.value;
@@ -759,11 +783,11 @@
                 <p>Qualquer dúvida, estou à disposição.</p>
                 <br>${assinaturaHtml}</div>`;
             
-            showCopyBoxAndSelect(corpoHtml);
+            await showCopyBoxAndCopyToClipboard(corpoHtml, gerarCreditoBtn);
             openMailClient(destinatario, copia, assunto);
         }
 
-        function gerarEmailPortaria() {
+        async function gerarEmailPortaria() {
             const destinatario = emailDestinatarioPortariaInput.value;
             const copia = emailCopiaPortariaInput.value;
             const nomeMotorista = motoristaPortariaSelect.value;
@@ -782,11 +806,11 @@
                 <p>Obrigado.</p>
                 <br>${assinaturaHtml}</div>`;
 
-            showCopyBoxAndSelect(corpoHtml);
+            await showCopyBoxAndCopyToClipboard(corpoHtml, gerarPortariaBtn);
             openMailClient(destinatario, copia, assunto);
         }
 
-        function gerarEmailTransbordo() {
+        async function gerarEmailTransbordo() {
             const destinatario = emailDestinatarioInput.value;
             const copia = emailCopiaInput.value;
             const nomeOriginal = motoristaOriginalSelect.value;
@@ -850,11 +874,11 @@
                     <p>Qualquer dúvida, estou à disposição.</p>
                     <br>${assinaturaHtml}</div>`;
             }
-            showCopyBoxAndSelect(corpoHtml);
+            await showCopyBoxAndCopyToClipboard(corpoHtml, gerarTransbordoBtn);
             openMailClient(destinatario, copia, assunto);
         }
 
-        function gerarEmailRemonte() {
+        async function gerarEmailRemonte() {
             const destinatario = emailDestinatarioRemonteInput.value;
             const copia = emailCopiaRemonteInput.value;
             const nomeMotorista = motoristaRemonteSelect.value;
@@ -881,11 +905,11 @@
                 <p>${nomeSupervisora}, aguardando seu Ok.</p>
                 <br>${assinaturaHtml}</div>`;
             
-            showCopyBoxAndSelect(corpoHtml);
+            await showCopyBoxAndCopyToClipboard(corpoHtml, gerarRemonteBtn);
             openMailClient(destinatario, copia, assunto);
         }
         
-        function gerarEmailAjusteRota() {
+        async function gerarEmailAjusteRota() {
             const destinatario = emailDestinatarioAjusteRotaInput.value;
             const copia = emailCopiaAjusteRotaInput.value;
             
@@ -915,7 +939,7 @@
 
             const corpoHtml = `<div style="font-family: Arial, sans-serif; font-size: 14px; color: #000;"><p>${saudacao},</p><p>Por favor, ajustar rota e praça dos clientes abaixo:</p><table style="border-collapse: collapse; width: auto; font-family: Arial, sans-serif; font-size: 14px; border: 1px solid #ccc;"><thead><tr><th style="border: 1px solid #ccc; padding: 8px; background-color: #f2f2f2; text-align: left;">Cliente</th><th style="border: 1px solid #ccc; padding: 8px; background-color: #f2f2f2; text-align: left;">Rota</th><th style="border: 1px solid #ccc; padding: 8px; background-color: #f2f2f2; text-align: left;">Praça</th></tr></thead><tbody>${tabelaLinhasHtml}</tbody></table><br>${assinaturaHtml}</div>`;
             
-            showCopyBoxAndSelect(corpoHtml);
+            await showCopyBoxAndCopyToClipboard(corpoHtml, gerarAjusteRotaBtn);
             openMailClient(destinatario, copia, assunto);
         }
 
